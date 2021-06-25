@@ -14,9 +14,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
 	// "github.com/sighupio/http-status-check/internal/http-status-check"
-	"github.com/sighupio/poc-service-endpoints-check/pkg/client"
+	// "github.com/sighupio/poc-service-endpoints-check/pkg/client"
 )
 
 var cfgFile string
@@ -47,14 +46,14 @@ func main() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
-func initClient(kubeCfgFile string) *client.KubernetesClient {
-	config, err := client.Config(kubeCfgFile)
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(-1)
-	}
-	return &client.KubernetesClient{Client: config}
-}
+// func initClient(kubeCfgFile string) *client.KubernetesClient {
+// config, err := client.Config(kubeCfgFile)
+// if err != nil {
+// log.Fatal(err)
+// os.Exit(-1)
+// }
+// return &client.KubernetesClient{Client: config}
+// }
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
@@ -99,7 +98,7 @@ func init() {
 		log.Fatal(err)
 		os.Exit(-1)
 	}
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file " +
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file "+
 		"(default is $HOME/.http-status-check.yaml)")
 }
 

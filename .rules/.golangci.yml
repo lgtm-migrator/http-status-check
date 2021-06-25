@@ -13,6 +13,7 @@
 run:
   # include test files or not, default is true
   tests: false
+  timeout: 5m
 
 # configure golangci-lint
 # see https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
