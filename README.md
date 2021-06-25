@@ -1,4 +1,4 @@
-# | <img src="docs/images/logo.png" alt="Fury Logo" width="18" height="25"> |  http-status-check |
+# | ![Fury Logo](fury_logo.png) |  HTTP status check |
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/sighupio/http-status-check)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/sighupio/http-status-check)
@@ -7,17 +7,15 @@
 
 ## Table of Contents
 
-- [| <img src="docs/images/logo.png" alt="Fury Logo" width="18" height="25"> |  http-status-check |](#----http-status-check-)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-  - [Getting Started](#getting-started)
-    - [Installation](#installation)
-    - [Usage](#usage)
-      - [Usage from inside a docker image](#usage-from-inside-a-docker-image)
-    - [Deploy in a cluster as a Job](#deploy-in-a-cluster-as-a-job)
-    - [Examples](#examples)
-  - [Developer Guide](#developer-guide)
-  - [License](#license)
+1. [Overview](#overview)
+1. [Getting Started](#getting-started)
+   * [Installation](#installation)
+   * [Usage](#usage)
+     * [Usage from inside a docker image](#usage-from-inside-a-docker-image)
+     * [Deploy in a cluster as a Job](#deploy-in-a-cluster-as-a-job)
+     * [Examples](#examples)
+1. [Developer Guide](#developer-guide)
+1. [License](#license)
 
 ## Overview
 
@@ -25,9 +23,11 @@ http-status-check is a tool that TBD
 
 The tool can be used to TBD:
 
-- As a standalone tool to connect to the local Kubernetes cluster.
-- As a standalone tool to connect to a remote Kubernetes cluster.
-- As a Kubernetes Job accessing services in the same cluster authorized using RBAC.
+* As a standalone tool to connect to the local Kubernetes cluster
+
+* As a standalone tool to connect to a remote Kubernetes cluster
+
+* As a Kubernetes Job accessing services in the same cluster authorized using RBAC
 
 ## Getting Started
 
@@ -82,8 +82,8 @@ Usage:
 Flags:
   -h, --help                help for http-status-check
 
-$ docker run -v .kube/:/root/.kube/ -it http-status-check:local-build ./http-status-check \
-                                            --flag-1=1 --flag-2=2
+$ docker run -v .kube/:/root/.kube/ -it http-status-check:local-build  \
+                            ./http-status-check  --flag-1=1 --flag-2=2
 ```
 
 ### Deploy in a cluster as a Job
