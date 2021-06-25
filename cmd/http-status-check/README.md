@@ -1,43 +1,52 @@
 # http-status-check CLI usage
 
-The tool expects TBD input information to function:
+The tool basically expects 3 input information to function:
 
-* first one
-* second one
-* next
+* Name of the service to monitor
+
+* Namespace of the service
+
+* HTTP Path to monitor
 
 These values can be provided in three different ways:
 
 ## As flags to the command
 
-For eg, the following command can be used to check if TBD.
+For eg, the following command can be used to check if the endpoint `"/"`
+of the service `nginx` in default namespace responded with `200 OK`.
 
 ``` sh
-$ http-status-check --flag-1 1 --flag-2 2
+$ http-status-check --service nginx --http-path "/"
 # output
 
-INFO[0000] Info message with flag-1=1 and flag-2=2
+INFO[0000] HTTP path "/" of Service nginx in namespace default responded with 200
+
 ```
 
-`flag-3`(flag-3) is optional and will get default values `1` and `default` respectively.
+`http-path`(http path) and `namespace` flags are optional and will get
+default values `/` and `default` respectively.
 
 ## As environment variables
 
 If no flags are provided, the tool looks for environment variables for getting
 the information. To avoid possible confusion, the environment variables has the
-prefix `TBD`. The usage can be as follows:
+prefix `HSC`. The usage can be as follows:
 
 ``` sh
-$ export TBD_FLAG_1=1 # ENV var for flag-1, notice that `-` becomes `_`
-$ export TBD_FLAG_2=2 # ENV var for flag-2, notice that `-` becomes `_`
+$ export SEC_SERVICE=nginx # ENV var for service
+$ export SEC_HTTP_PATH="/hello" # ENV var for http-path,
+                                 # notice that `-` becomes `_`
 
 $ http-status-check --KUBECONFIG ~/.kubeconfig
 
 #output
-INFO[0000] Info message with flag-1=1 and flag-2=2
+FATA[0000] HTTP Endpoint "/hello" of service nginx
+(namespace: default) did not respond
+exit status 1
+
 ```
 
-`flag-3`(flag-3) is optional and will get default values `1` and `default` respectively.
+The default values for namespace and http-path remains the same.
 
 ## As configuration file
 
@@ -50,12 +59,14 @@ An example usage is:
 
 ``` sh
 $ cat /home/username/.config
-flag-1: 1
-flag-2: 2
-flag-3: 3
+service: nginx
+namespace: dev
+http-path: "/app/"
 
 $ http-status-check --config /home/username/.config
-INFO[0000] Info message with flag-1=1 and flag-2=2
+FATA[0000] services "nginx" not found
+exit status 1
+
 ```
 
 ## Monitoring a remote cluster
@@ -63,12 +74,14 @@ INFO[0000] Info message with flag-1=1 and flag-2=2
 By default, the tool expects the Kuberentes cluster is present in the local and
 hence look for a kubeconfig `~/.kube/config`. To override this and connect to a
 remote cluster, one could use the flag `--KUBECONFIG` (or env var
-`SEC_KUBECONFIG` or provide in the config file being used under a key `KUBECONFIG`).
+`HSC_KUBECONFIG` or provide in the config file being used under a key
+`KUBECONFIG`).
 
 An example usage is:
 
 ``` sh
 $ export KUBECONFIG=/home/username/kubebin/kubeconfig
-$ http-status-check --flag-1 1 --flag-2 2
-INFO[0000] Info message with flag-1=1 and flag-2=2
+$ http-status-check --service nginx
+INFO[0000] HTTP path "/" of Service nginx in namespace default responded with 200
+
 ```
