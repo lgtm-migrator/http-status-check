@@ -1,0 +1,26 @@
+# Copyright (c) 2021 SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: http-status-check
+spec:
+  schedule: "*/1 * * * *"
+  startingDeadlineSeconds: 10 # if a job hasn't starting in this many seconds, skip
+  concurrencyPolicy: Forbid # either allow|forbid|replace
+  successfulJobsHistoryLimit: 3 # how many completed jobs should be
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: http-status-check
+          containers:
+          - name: http-status-check
+            image: registry.sighup.io/poc/http-status-check:latest
+            imagePullPolicy: Always
+            envFrom:
+              - configMapRef:
+                  name: tbd-envs
+          restartPolicy: OnFailure

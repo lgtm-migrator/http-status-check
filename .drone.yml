@@ -1,0 +1,88 @@
+# Copyright (c) 2021 SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+kind: pipeline
+name: Release
+
+steps:
+  - &docker-test
+    name: license
+    image: docker:dind
+    pull: always
+    volumes:
+    - name: dockersock
+      path: /var/run/docker.sock
+    environment: &default-env
+      DOCKER_BUILDKIT: "1"
+    commands:
+      - &requirements
+        apk add make bash util-linux
+      - &target
+        make $${DRONE_STEP_NAME}
+
+  - <<: *docker-test
+    name: lint
+
+  - <<: *docker-test
+    name: test
+
+  - <<: *docker-test
+    name: build
+
+  - <<: *docker-test
+    name: e2e-test
+    network_mode: host
+    environment:
+      << : *default-env
+      KIND_VERSION: v0.11.0
+      CLUSTER_VERSION: v1.20.7
+      BATS_VERSION: 1.3.0
+    commands:
+      - *requirements
+      - wget -qO /usr/local/bin/kind "https://kind.sigs.k8s.io/dl/$${KIND_VERSION}/kind-$(uname)-amd64"
+      - wget -qO /usr/local/bin/kubectl "https://storage.googleapis.com/kubernetes-release/release/$${CLUSTER_VERSION}/bin/linux/amd64/kubectl"
+      - chmod +x /usr/local/bin/kind /usr/local/bin/kubectl
+      - wget -qO /tmp/temp.zip https://github.com/bats-core/bats-core/archive/refs/tags/v$${BATS_VERSION}.zip
+      - unzip -d /tmp /tmp/temp.zip
+      - /tmp/bats-core-$${BATS_VERSION}/install.sh /usr/local
+      - *target
+
+  - <<: *docker-test
+    name: publish
+    environment:
+      << : *default-env
+      REGISTRY:
+        from_secret: REGISTRY
+      REGISTRY_USER:
+        from_secret: REGISTRY_USER
+      REGISTRY_PASSWORD:
+        from_secret: REGISTRY_PASSWORD
+    commands:
+      - *requirements
+      - export IMAGE_NAME=$${DRONE_REPO_NAME}
+      - export IMAGE_TAG=$${DRONE_TAG:-unstable}
+      - *target
+    when:
+      event:
+        exclude:
+          - pull_request
+
+  - name: release
+    image: registry.sighup.io/fury/drone-github-release:latest
+    pull: always
+    environment:
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
+    commands:
+      - export GITHUB_RELEASE_TITLE="Welcome $${DRONE_TAG} release"
+      - export GITHUB_RELEASE_NOTE="docs/releases/$${DRONE_TAG}.md"
+      - drone-github-release
+    when:
+      event:
+        - tag
+
+volumes:
+- name: dockersock
+  host:
+    path: /var/run/docker.sock
