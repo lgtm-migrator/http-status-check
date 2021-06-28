@@ -14,12 +14,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	// "github.com/sighupio/http-status-check/internal/http-status-check"
-	// "github.com/sighupio/poc-service-endpoints-check/pkg/client"
+	"github.com/sighupio/http-status-check/internal/healthcheck"
+	"github.com/sighupio/service-endpoints-check/pkg/client"
 )
 
 var cfgFile string
-var kubeCfgFile string
+// var kubeCfgFile string
 var namespace string
 var httpEp string
 var serviceName string
@@ -30,12 +30,12 @@ var rootCmd = &cobra.Command{
 	Use:   "http-status-check",
 	Short: "Health check to monitor the http endpoints of a service",
 	Run: func(cmd *cobra.Command, args []string) {
-		// clientSet := initClient(kubeCfgFile)
-		// err := services.ValidateEndpoints(clientSet, serviceName, namespace, httpEp)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// 	os.Exit(-1)
-		// }
+		clientSet := initClient()
+		err := healthcheck.ValidateHTTPEndpoint(clientSet, serviceName, namespace, httpEp)
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(-1)
+		}
 		log.Infof("HTTP path %v of Service %v in namespace %v responded with 200",
 			httpEp, serviceName, namespace)
 		os.Exit(0)
@@ -46,14 +46,14 @@ func main() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
-// func initClient(kubeCfgFile string) *client.KubernetesClient {
-// config, err := client.Config(kubeCfgFile)
-// if err != nil {
-// log.Fatal(err)
-// os.Exit(-1)
-// }
-// return &client.KubernetesClient{Client: config}
-// }
+func initClient() *client.KubernetesClient {
+	config, err := client.Config("")
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(-1)
+	}
+	return &client.KubernetesClient{Client: config}
+}
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
@@ -89,9 +89,10 @@ func init() {
 	rootCmd.Flags().StringVarP(&serviceName, "service", "s", "", "Name of the service to monitor (required)")
 	rootCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Namespace of the service to monitor")
 	rootCmd.Flags().StringVarP(&httpEp, "http-path", "p", "/", "HTTP Path to monitor")
-	rootCmd.PersistentFlags().StringVar(&kubeCfgFile, "KUBECONFIG", "",
-		"kubeconfig file (default is in-cluster connection. Fallback is "+
-			"$HOME/.kube/config")
+	// we do not support out-of-cluster deployment in this
+	// rootCmd.PersistentFlags().StringVar(&kubeCfgFile, "KUBECONFIG", "",
+	// 	"kubeconfig file (default is in-cluster connection. Fallback is "+
+	// 		"$HOME/.kube/config")
 	bindFlags(rootCmd, v)
 	err := rootCmd.MarkFlagRequired("service")
 	if err != nil {

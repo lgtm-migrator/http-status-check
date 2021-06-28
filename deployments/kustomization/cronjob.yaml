@@ -22,5 +22,5 @@ spec:
             imagePullPolicy: Always
             envFrom:
               - configMapRef:
-                  name: tbd-envs
+                  name: hsc-envs
           restartPolicy: OnFailure

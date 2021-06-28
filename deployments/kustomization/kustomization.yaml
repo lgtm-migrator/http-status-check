@@ -9,5 +9,5 @@ resources:
   - role-binding.yaml
   - cronjob.yaml
 configMapGenerator:
-  - name: tbd-envs
+  - name: hsc-envs
     env: .env
