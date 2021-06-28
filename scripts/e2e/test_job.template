@@ -1,0 +1,20 @@
+# Copyright (c) 2021 SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: $JOB_NAME
+  namespace: $NAMESPACE
+spec:
+  template:
+    spec:
+        serviceAccountName: $SERVICE_ACCOUNT
+        containers:
+        - name: $JOB_NAME
+          image: $CONTAINER_IMAGE
+          imagePullPolicy: Never
+          command: ["/http-status-check", "--service=$SVCNAME", "--namespace=$NAMESPACE", "--http-path=$HTTP_PATH"]
+        restartPolicy: Never
+  backoffLimit: 1
