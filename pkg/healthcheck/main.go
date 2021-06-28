@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+
 	"github.com/sighupio/service-endpoints-check/pkg/client"
 
 	corev1 "k8s.io/api/core/v1"
@@ -58,11 +59,12 @@ func epAddress(endpoint *corev1.Endpoints) ([]string, []int32) {
 }
 
 func JoinURL(base string, paths ...string) string {
-    p := path.Join(paths...)
-    return fmt.Sprintf("%s/%s", strings.TrimRight(base, "/"), strings.TrimLeft(p, "/"))
+	p := path.Join(paths...)
+	return fmt.Sprintf("%s/%s", strings.TrimRight(base, "/"), strings.TrimLeft(p, "/"))
 }
 
 func makehttpCall(url string) (*http.Response, error) {
+	/* #nosec G107: Url generation*/
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -81,17 +83,17 @@ func CallServiceHTTPEndpoint(client *client.KubernetesClient,
 	if err != nil {
 		return nil, err
 	}
-	status_codes := make(map[string]int)
+	statusCodes := make(map[string]int)
 	addrs, ports := epAddress(endpoints)
 	for _, addr := range addrs {
-		for _, port := range ports  {
+		for _, port := range ports {
 			url := JoinURL(fmt.Sprintf("http://%v:%v", addr, port), httpPath)
 			resp, err := makehttpCall(url)
 			if err != nil {
 				return nil, err
 			}
-			status_codes[url] = resp.StatusCode
+			statusCodes[url] = resp.StatusCode
 		}
 	}
-	return status_codes, nil
+	return statusCodes, nil
 }

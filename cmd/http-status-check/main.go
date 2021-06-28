@@ -10,15 +10,16 @@ import (
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/sighupio/http-status-check/internal/healthcheck"
+	"github.com/sighupio/service-endpoints-check/pkg/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/sighupio/http-status-check/internal/healthcheck"
-	"github.com/sighupio/service-endpoints-check/pkg/client"
 )
 
 var cfgFile string
+
 // var kubeCfgFile string
 var namespace string
 var httpEp string

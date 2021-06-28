@@ -20,7 +20,7 @@ resources:
   - role-binding.yaml
   - cronjob.yaml
 configMapGenerator:
-  - name: tbd-envs
+  - name: hsc-envs
     env: .env
 
 ```
@@ -71,9 +71,9 @@ to inject data into a pod.
 The environment variables necessary for the pod to execute are:
 
 ```yaml
-TND_SERVICE
-TND_NAMESPACE
-TND_MIN_EP
+HSC_SERVICE
+HSC_NAMESPACE
+HSC_MIN_EP
 ```
 
 Refer the [CLI usage guide for detailed review of
@@ -85,7 +85,7 @@ can be injected like this in the job file:
 ``` yaml
             envFrom:
               - configMapRef:
-                  name: tbd-envs
+                  name: hsc-envs
 ```
 
 ## ConfigMap
@@ -97,11 +97,11 @@ kustomize section is used:
 
 ``` yaml
 configMapGenerator:
-- name: tbd-envs
+- name: hsc-envs
   env: .env
 ```
 
-Here a tbd-envs configMap Kubernetes resource is created from an environment
+Here a hsc-envs configMap Kubernetes resource is created from an environment
 file called `.env`. A template to this file is provided as a file
 `env_template`. The file has two keys defined with values left empty. So the
 first step would be to rename it as `.env` since that is what `kustomization`
@@ -110,16 +110,15 @@ expects.
 ``` yaml
 $ cp env_template .env
 $ cat .env
-TBD_SERVICE=
-TBD_NAMESPACE=
-TBD_MIN_EP=
+HSC_SERVICE=
+HSC_NAMESPACE=
+HSC_HTTP_PATH=
 ```
 
 Add the values for the above 3 environment variables. An example could be:
 
 ```yaml
 $ cat .env
-TBD_SERVICE=nginx
-TBD_NAMESPACE=dev
-TBD_MIN_EP=2
-```
+HSC_SERVICE=nginx
+HSC_NAMESPACE=dev
+HSC_HTTP_PATH="/index"

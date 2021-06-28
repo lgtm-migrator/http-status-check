@@ -6,7 +6,7 @@ package healthcheck
 
 import (
 	"fmt"
-	"errors"
+
 	"github.com/sighupio/service-endpoints-check/pkg/client"
 
 	"github.com/sighupio/http-status-check/pkg/healthcheck"
@@ -22,9 +22,9 @@ func ValidateHTTPEndpoint(client *client.KubernetesClient,
 
 	for url, code := range statusCodes {
 		if code != 200 {
-			return errors.New(fmt.Sprintf("Endpoint %v of service %v " +
+			return fmt.Errorf("Endpoint %v of service %v "+
 				"(namespace %v) responded with %v (expected 200)", url,
-				service, namespace, code))
+				service, namespace, code)
 		}
 	}
 	return nil

@@ -1,5 +1,8 @@
 # http-status-check CLI usage
 
+> This CLI can only be used as a Kubernetes resource since it uses
+> the internal Cluster IP to ping the endpoints
+
 The tool basically expects 3 input information to function:
 
 * Name of the service to monitor
@@ -33,8 +36,8 @@ the information. To avoid possible confusion, the environment variables has the
 prefix `HSC`. The usage can be as follows:
 
 ``` sh
-$ export SEC_SERVICE=nginx # ENV var for service
-$ export SEC_HTTP_PATH="/hello" # ENV var for http-path,
+$ export HSC_SERVICE=nginx # ENV var for service
+$ export HSC_HTTP_PATH="/hello" # ENV var for http-path,
                                  # notice that `-` becomes `_`
 
 $ http-status-check --KUBECONFIG ~/.kubeconfig
@@ -66,22 +69,5 @@ http-path: "/app/"
 $ http-status-check --config /home/username/.config
 FATA[0000] services "nginx" not found
 exit status 1
-
-```
-
-## Monitoring a remote cluster
-
-By default, the tool expects the Kuberentes cluster is present in the local and
-hence look for a kubeconfig `~/.kube/config`. To override this and connect to a
-remote cluster, one could use the flag `--KUBECONFIG` (or env var
-`HSC_KUBECONFIG` or provide in the config file being used under a key
-`KUBECONFIG`).
-
-An example usage is:
-
-``` sh
-$ export KUBECONFIG=/home/username/kubebin/kubeconfig
-$ http-status-check --service nginx
-INFO[0000] HTTP path "/" of Service nginx in namespace default responded with 200
 
 ```
