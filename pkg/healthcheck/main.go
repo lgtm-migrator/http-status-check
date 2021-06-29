@@ -86,7 +86,7 @@ func CallServiceHTTPEndpoint(client *client.KubernetesClient,
 	statusCodes := make(map[string]int)
 	addrs, ports := epAddress(endpoints)
 	if len(addrs) == 0 || len(ports) == 0 {
-		return nil, fmt.Errorf("No endpoint addresses were found service  " +
+		return nil, fmt.Errorf("No endpoint addresses were found service  "+
 			"%v (namespace %v)", serviceName, namespace)
 
 	}
