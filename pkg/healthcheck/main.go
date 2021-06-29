@@ -85,6 +85,11 @@ func CallServiceHTTPEndpoint(client *client.KubernetesClient,
 	}
 	statusCodes := make(map[string]int)
 	addrs, ports := epAddress(endpoints)
+	if len(addrs) == 0 || len(ports) == 0 {
+		return nil, fmt.Errorf("No endpoint addresses were found service  " +
+			"%v (namespace %v)", serviceName, namespace)
+
+	}
 	for _, addr := range addrs {
 		for _, port := range ports {
 			url := JoinURL(fmt.Sprintf("http://%v:%v", addr, port), httpPath)

@@ -178,7 +178,7 @@ test_envs_03(){
     info
     test_envs_03
     deploy() {
-        kubectl wait --for=condition=failed --timeout=180s "job/$JOB_NAME" -n "$NAMESPACE"
+        kubectl wait --for=condition=failed --timeout=90s "job/$JOB_NAME" -n "$NAMESPACE"
     }
     run deploy
 
