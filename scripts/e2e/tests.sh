@@ -11,6 +11,7 @@ info(){
 test_envs_01(){
     export NAMESPACE=default
     export SVCNAME=nginx
+    export HTTP_PATH="/"
     export SERVICE_ACCOUNT=sa-endpoint-check
     export CLUSTER_ROLE=service-reader
     export CLUSTER_ROLE_BINDING=service-reader-rb
@@ -28,7 +29,7 @@ test_envs_02(){
 test_envs_03(){
     export NAMESPACE=default
     export SVCNAME=no-deploy
-    export MIN_EP="/app/live"
+    export HTTP_PATH="/app/live"
     export SERVICE_ACCOUNT=sa-endpoint-check
     export JOB_NAME=http-status-check-03
 }
