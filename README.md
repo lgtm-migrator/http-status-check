@@ -19,7 +19,8 @@
 
 ## Overview
 
-http-status-check is a tool that TBD
+http-status-check is a tool that monitors the http endpoints in a
+kubernetes cluster.
 
 The tool can be used to monitor the HTTP endpoints of a service. It
 check if the service endpoints responds with an HTTP status 200 OK.
@@ -29,6 +30,59 @@ tool can be deployed in the following ways:
 * As a Kubernetes Job accessing services in the same cluster authorized using RBAC
 
 ## Getting Started
+
+> Please note that this tool doesn't monitor services from outside of
+> the cluster since endpoint IPs won't be reachable.
+
+### Installation
+
+The simplest way to use the tool is to install the binary from the source repo
+as follows:
+
+* Using Go get
+
+``` sh
+$ go get -u github.com/sighupio/http-status-check/cmd/http-status-check
+#
+```
+
+You should find the CLI installed in the `$GOPATH`. From this point mentioned as
+`http-status-check`
+
+### Usage
+
+The basic usage info of the tool can be seen by using the following command:
+
+```sh
+$ http-status-check -h
+#
+```
+
+![command](cmd.png)
+
+> [Refer this extended documentation on CLI usage for more](./cmd/http-status-check/README.md)
+
+#### Usage from inside a docker image
+
+There is a [Dockerfile bundled](./build/builder/Dockerfile) with this repo which
+can be used to build a Docker image and that can be used to run the binary. To
+build docker image one can use the make rule `build`. You can read more about
+Makefile in [CONTRIBUTING.md](./CONTRIBUTING.md). To build the image:
+
+``` sh
+$ make build
+# The docker image will be created by the name http-status-check:local-build
+```
+
+The above image can be run exactly the way the CLI is used like shown by the
+code block below:
+
+``` sh
+$ docker run -it status-status-check:local-build -h
+#
+$ docker run -v .kube/:/root/.kube/ -it http-status-check:local-build \
+                                            --service=mypod
+```
 
 ### Deploy in a cluster as a Job
 
