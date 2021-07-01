@@ -20,7 +20,6 @@ import (
 
 var cfgFile string
 
-// var kubeCfgFile string
 var namespace string
 var httpEp string
 var serviceName string
@@ -90,10 +89,6 @@ func init() {
 	rootCmd.Flags().StringVarP(&serviceName, "service", "s", "", "Name of the service to monitor (required)")
 	rootCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Namespace of the service to monitor")
 	rootCmd.Flags().StringVarP(&httpEp, "http-path", "p", "/", "HTTP Path to monitor")
-	// we do not support out-of-cluster deployment in this
-	// rootCmd.PersistentFlags().StringVar(&kubeCfgFile, "KUBECONFIG", "",
-	// 	"kubeconfig file (default is in-cluster connection. Fallback is "+
-	// 		"$HOME/.kube/config")
 	bindFlags(rootCmd, v)
 	err := rootCmd.MarkFlagRequired("service")
 	if err != nil {

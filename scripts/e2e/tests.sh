@@ -54,7 +54,7 @@ test_envs_03(){
     [ "$status" -eq 0 ]
 }
 
-@test "Create RBAC for the job " {
+@test "Create service account for the job " {
     info
     test_envs_01
     create_svc_account() {
@@ -62,19 +62,26 @@ test_envs_03(){
     }
     run create_svc_account
     [ "$status" -eq 0 ]
+}
 
+@test "Create the cluster role for the job " {
+    info
+    test_envs_01
     create_cluster_role() {
          kubectl create clusterrole "$CLUSTER_ROLE"  --verb=get,list,watch --resource=services,pods,endpoints
      }
     run create_cluster_role
     [ "$status" -eq 0 ]
+}
 
+@test "Create the cluster role binding for the job " {
+    info
+    test_envs_01
     create_cluster_role_binding() {
         kubectl create clusterrolebinding "$CLUSTER_ROLE_BINDING" --clusterrole "$CLUSTER_ROLE" --serviceaccount="$NAMESPACE:$SERVICE_ACCOUNT"
     }
     run create_cluster_role_binding
     [ "$status" -eq 0 ]
-
 }
 
 @test "Deploy  job" {
