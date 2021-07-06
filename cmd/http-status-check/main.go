@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 		err := healthcheck.ValidateHTTPEndpoint(clientSet, serviceName, namespace, httpEp)
 		if err != nil {
 			log.Fatal(err)
-			os.Exit(1)
+			os.Exit(-1)
 		}
 		log.Infof("HTTP path %v of Service %v in namespace %v responded with 200",
 			httpEp, serviceName, namespace)
