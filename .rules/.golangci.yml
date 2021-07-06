@@ -13,7 +13,7 @@
 run:
   # include test files or not, default is true
   tests: false
-  timeout: 5m
+  timeout: 10m
 
 # configure golangci-lint
 # see https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
@@ -26,13 +26,12 @@ issues:
       - goconst
 linters:
   enable:
-    - golint
+    - revive
     - gosec
     - unconvert
     - gocyclo
     - goconst
     - goimports
-    - maligned
     - gocritic
 linters-settings:
   errcheck:

@@ -92,7 +92,7 @@ func init() {
 	bindFlags(rootCmd, v)
 	err := rootCmd.MarkFlagRequired("service")
 	if err != nil {
-        log.WithError(err).Fatal("error in the cli. Exiting")
+		log.WithError(err).Fatal("error in the cli. Exiting")
 		os.Exit(1)
 	}
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file "+
