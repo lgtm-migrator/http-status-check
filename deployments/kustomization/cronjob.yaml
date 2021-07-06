@@ -11,6 +11,7 @@ spec:
   startingDeadlineSeconds: 10 # if a job hasn't starting in this many seconds, skip
   concurrencyPolicy: Forbid # either allow|forbid|replace
   successfulJobsHistoryLimit: 3 # how many completed jobs should be
+  activeDeadlineSeconds: 120 # job is marked failed after this limit
   jobTemplate:
     spec:
       template:
