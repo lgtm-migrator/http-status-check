@@ -12,4 +12,5 @@ resources:
   - cronjob.yaml
 configMapGenerator:
   - name: hsc-envs
-    env: flask.env
+    envs:
+      - flask.env
