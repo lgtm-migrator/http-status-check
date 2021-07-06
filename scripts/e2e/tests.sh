@@ -3,42 +3,14 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-
 info(){
   echo -e "${BATS_TEST_NUMBER}: ${BATS_TEST_DESCRIPTION}" >&3
 }
 
-test_envs_01(){
-    export NAMESPACE=default
-    export SVCNAME=nginx
-    export HTTP_PATH="/"
-    export SERVICE_ACCOUNT=sa-endpoint-check
-    export CLUSTER_ROLE=service-reader
-    export CLUSTER_ROLE_BINDING=service-reader-rb
-    export JOB_NAME=http-status-check
-}
-
-test_envs_02(){
-    export NAMESPACE=default
-    export SVCNAME=nginx-deploy
-    export HTTP_PATH="/index.html"
-    export SERVICE_ACCOUNT=sa-endpoint-check
-    export JOB_NAME=http-status-check-02
-}
-
-test_envs_03(){
-    export NAMESPACE=default
-    export SVCNAME=no-deploy
-    export HTTP_PATH="/app/live"
-    export SERVICE_ACCOUNT=sa-endpoint-check
-    export JOB_NAME=http-status-check-03
-}
-
 @test "Requirements" {
     info
-    test_envs_01
     deploy(){
-        kubectl run $SVCNAME --image nginx:latest --port 80 --expose
+        kubectl run nginx --image nginx:latest --port 80 --expose
     }
     run deploy
     [ "$status" -eq 0 ]
@@ -46,72 +18,71 @@ test_envs_03(){
 
 @test "Requirements Check" {
     info
-    test_envs_01
     deploy(){
-        kubectl wait --timeout=180s --for=condition=ready pod -l run=$SVCNAME
+        kubectl wait --timeout=180s --for=condition=ready pod -l run=nginx
     }
     run deploy
     [ "$status" -eq 0 ]
 }
 
-@test "Create service account for the job " {
+@test "Prepare deploy 01" {
     info
-    test_envs_01
-    create_svc_account() {
-        kubectl create sa "$SERVICE_ACCOUNT"
+    prep(){
+        cp deployments/kustomization/env_template deployments/kustomization/.env
     }
-    run create_svc_account
+    run prep
     [ "$status" -eq 0 ]
 }
 
-@test "Create the cluster role for the job " {
+@test "Deploy 01" {
     info
-    test_envs_01
-    create_cluster_role() {
-         kubectl create clusterrole "$CLUSTER_ROLE"  --verb=get,list,watch --resource=services,pods,endpoints
-     }
-    run create_cluster_role
-    [ "$status" -eq 0 ]
-}
-
-@test "Create the cluster role binding for the job " {
-    info
-    test_envs_01
-    create_cluster_role_binding() {
-        kubectl create clusterrolebinding "$CLUSTER_ROLE_BINDING" --clusterrole "$CLUSTER_ROLE" --serviceaccount="$NAMESPACE:$SERVICE_ACCOUNT"
-    }
-    run create_cluster_role_binding
-    [ "$status" -eq 0 ]
-}
-
-@test "Deploy  job" {
-    info
-    test_envs_01
     deploy(){
-        envsubst < "scripts/e2e/test_job.template" | kubectl apply -f -
+        kustomize build deployments/kustomization | kubectl apply -f -
     }
-
     run deploy
     [ "$status" -eq 0 ]
 }
 
-
-@test "Check the job completed successfully" {
+@test "Use loaded image in the cronjob 01" {
     info
-    test_envs_01
+    mutate(){
+        kubectl set image cronjob/http-status-check http-status-check="${CONTAINER_IMAGE}"
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
 
+@test "Create a job from the cronjob 01" {
+    info
+    mutate(){
+        kubectl create job http-status-check-job-1 --from cronjob/http-status-check
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
+
+@test "Check if the job 01 completed" {
+    info
     check(){
-        kubectl wait --for=condition=complete --timeout=180s "job/$JOB_NAME" -n "$NAMESPACE"
+        kubectl wait --for=condition=complete --timeout=180s job/http-status-check-job-1
     }
     run check
     [ "$status" -eq 0 ]
 }
 
+@test "Clean up 01" {
+    info
+    cleanup(){
+        kustomize build deployments/kustomization | kubectl delete -f -
+    }
+    run cleanup
+    [ "$status" -eq 0 ]
+}
+
 @test "Create deployment with 3 replicas" {
     info
-    test_envs_02
     deploy(){
-         kubectl create deploy $SVCNAME --image nginx:latest --replicas 3 --port 80
+         kubectl create deploy nginx-deploy --image nginx:latest --replicas 3 --port 80
     }
     run deploy
     [ "$status" -eq 0 ]
@@ -119,9 +90,8 @@ test_envs_03(){
 
 @test "Wait for replicas to come up" {
     info
-    test_envs_02
     deploy(){
-        kubectl wait --timeout=180s --for=condition=ready pod -l app=$SVCNAME
+        kubectl wait --timeout=180s --for=condition=ready pod -l app=nginx-deploy
     }
     run deploy
     [ "$status" -eq 0 ]
@@ -129,64 +99,108 @@ test_envs_03(){
 
 @test "Create Service for the deployment" {
     info
-    test_envs_02
     deploy(){
-        kubectl create service clusterip $SVCNAME --tcp=8080:80
+        kubectl create service clusterip nginx-deploy --tcp=8080:80
     }
     run deploy
     [ "$status" -eq 0 ]
 }
 
-@test "Deploy monitoring job 02" {
+@test "Prepare deploy 02" {
     info
-    test_envs_02
-    deploy(){
-        envsubst < "scripts/e2e/test_job.template" | kubectl apply -f -
+    prep(){
+        cp deployments/kustomization/env_template_2 deployments/kustomization/.env
     }
+    run prep
+    [ "$status" -eq 0 ]
+}
 
+@test "Deploy 02" {
+    info
+    deploy(){
+        kustomize build deployments/kustomization | kubectl apply -f -
+    }
     run deploy
     [ "$status" -eq 0 ]
 }
 
-
-@test "Check the job 02 completed successfully" {
+@test "Use loaded image in the cronjob 02" {
     info
-    test_envs_02
+    mutate(){
+        kubectl set image cronjob/http-status-check http-status-check="${CONTAINER_IMAGE}"
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
 
-    check() {
-    kubectl wait --for=condition=complete --timeout=180s "job/$JOB_NAME" -n "$NAMESPACE"
+@test "Create a job from the cronjob 02" {
+    info
+    mutate(){
+        kubectl create job http-status-check-job-2 --from cronjob/http-status-check
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
+
+@test "Check if the job 02 completed" {
+    info
+    check(){
+        kubectl wait --for=condition=complete --timeout=180s job/http-status-check-job-2
     }
     run check
     [ "$status" -eq 0 ]
 }
 
+
 @test "Create Service for non existing pods" {
     info
-    test_envs_03
     deploy(){
-        kubectl create service clusterip $SVCNAME --tcp=8080:80
+        kubectl create service clusterip no-deploy --tcp=8080:80
     }
     run deploy
     [ "$status" -eq 0 ]
 }
 
-@test "Deploy  job 03" {
+@test "Prepare deploy 03" {
     info
-    test_envs_03
-    deploy(){
-        envsubst < "scripts/e2e/test_job.template" | kubectl apply -f -
+    prep(){
+        cp deployments/kustomization/env_template_3 deployments/kustomization/.env
     }
+    run prep
+    [ "$status" -eq 0 ]
+}
 
+@test "Deploy 03" {
+    info
+    deploy(){
+        kustomize build deployments/kustomization | kubectl apply -f -
+    }
     run deploy
     [ "$status" -eq 0 ]
 }
 
+@test "Use loaded image in the cronjob 03" {
+    info
+    mutate(){
+        kubectl set image cronjob/http-status-check http-status-check="${CONTAINER_IMAGE}"
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
+
+@test "Create a job from the cronjob 03" {
+    info
+    mutate(){
+        kubectl create job http-status-check-job-3 --from cronjob/http-status-check
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
 
 @test "Check the job 03 did not complete successfully" {
     info
-    test_envs_03
     deploy() {
-        kubectl wait --for=condition=failed --timeout=90s "job/$JOB_NAME" -n "$NAMESPACE"
+        kubectl wait --for=condition=failed --timeout=90s job/http-status-check-job-3
     }
     run deploy
 

@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 		err := healthcheck.ValidateHTTPEndpoint(clientSet, serviceName, namespace, httpEp)
 		if err != nil {
 			log.Fatal(err)
-			os.Exit(-1)
+			os.Exit(1)
 		}
 		log.Infof("HTTP path %v of Service %v in namespace %v responded with 200",
 			httpEp, serviceName, namespace)
@@ -92,8 +92,8 @@ func init() {
 	bindFlags(rootCmd, v)
 	err := rootCmd.MarkFlagRequired("service")
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(-1)
+        log.WithError(err).Fatal("error in the cli. Exiting")
+		os.Exit(1)
 	}
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file "+
 		"(default is $HOME/.http-status-check.yaml)")

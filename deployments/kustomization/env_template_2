@@ -1,0 +1,3 @@
+HSC_SERVICE=nginx-deploy
+HSC_NAMESPACE=default
+HSC_HTTP_PATH=/index.html

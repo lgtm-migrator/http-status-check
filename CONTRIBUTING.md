@@ -16,14 +16,14 @@ $ make
 
  Choose a command to run in http-status-check:
 
-  init            Init the project. GITHUB_PROJECT=demo
+  init            Init the project. GITHUB_PROJECT=demo make init
   drone-init      Init the drone-project. GITHUB_PROJECT=demo GITHUB_TOKEN=123token321 DRONE_TOKEN=tokenhere REGISTRY=registry.sighup.io REGISTRY_USER=robotuser REGISTRY_PASSWORD=thepassword make drone-init
   build           Build the container image
   lint            Run the policeman over the repository
   build-release   Build the release container image
   test            Run unit testing
   license         Check license headers are in-place in all files in the project
-  e2e-test        Execute e2e-tests
+  e2e-test        Execute e2e-tests. CLUSTER_VERSION=v1.21.1 make e2e-test
   publish         Publish the container image
 
 ```

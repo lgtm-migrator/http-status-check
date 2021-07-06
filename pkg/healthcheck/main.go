@@ -8,8 +8,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"path"
-	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sighupio/service-endpoints-check/pkg/client"
 
@@ -58,9 +60,13 @@ func epAddress(endpoint *corev1.Endpoints) ([]string, []int32) {
 	return epAddrs, epPorts
 }
 
-func JoinURL(base string, paths ...string) string {
-	p := path.Join(paths...)
-	return fmt.Sprintf("%s/%s", strings.TrimRight(base, "/"), strings.TrimLeft(p, "/"))
+func JoinURL(base string, httpPath string) (string, error) {
+	u, err := url.Parse(base)
+	if err != nil {
+		return "", err
+	}
+	u.Path = path.Join(u.Path, httpPath)
+	return u.String(), nil
 }
 
 func makehttpCall(url string) (*http.Response, error) {
@@ -92,7 +98,11 @@ func CallServiceHTTPEndpoint(client *client.KubernetesClient,
 	}
 	for _, addr := range addrs {
 		for _, port := range ports {
-			url := JoinURL(fmt.Sprintf("http://%v:%v", addr, port), httpPath)
+			url, err := JoinURL(fmt.Sprintf("http://%v:%v", addr, port), httpPath)
+			if err != nil {
+				log.Fatalf("IP parsing error service %v address: IP %v port %d",
+					serviceName, addr, port)
+			}
 			resp, err := makehttpCall(url)
 			if err != nil {
 				return nil, err
