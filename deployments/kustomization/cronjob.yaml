@@ -13,7 +13,7 @@ spec:
   successfulJobsHistoryLimit: 3 # how many completed jobs should be
   jobTemplate:
     spec:
-      activeDeadlineSeconds: 120 # job is marked failed after this limit
+      activeDeadlineSeconds: 60 # job is marked failed after this limit
       template:
         spec:
           serviceAccountName: http-status-check
