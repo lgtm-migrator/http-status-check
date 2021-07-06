@@ -19,7 +19,7 @@ spec:
           serviceAccountName: http-status-check
           containers:
           - name: http-status-check
-            image: registry.sighup.io/poc/http-status-check:latest
+            image: registry.sighup.io/poc/http-status-check:unstable
             imagePullPolicy: Always
             envFrom:
               - configMapRef:
