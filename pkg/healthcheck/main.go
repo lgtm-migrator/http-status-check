@@ -11,13 +11,13 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/sighupio/service-endpoints-check/pkg/client"
+	"github.com/sighupio/fip-commons/pkg/kube"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func getService(kc *client.KubernetesClient,
+func getService(kc *kube.KubernetesClient,
 	svcName string,
 	namespace string) (*corev1.Service, error) {
 	service, err := kc.Client.CoreV1().Services(namespace).Get(context.TODO(),
@@ -26,7 +26,7 @@ func getService(kc *client.KubernetesClient,
 	return service, err
 }
 
-func getEndpoints(kc *client.KubernetesClient, service *corev1.Service,
+func getEndpoints(kc *kube.KubernetesClient, service *corev1.Service,
 	namespace string) (*corev1.Endpoints, error) {
 	// Retrieve all the endpoints corresponding to the service
 	// Name of the endpoint will always match that of the svc
@@ -79,7 +79,7 @@ func makehttpCall(url string) (*http.Response, error) {
 	return resp, nil
 }
 
-func CallServiceHTTPEndpoint(client *client.KubernetesClient,
+func CallServiceHTTPEndpoint(client *kube.KubernetesClient,
 	serviceName string, namespace string, httpPath string) (map[string]int, error) {
 	service, err := getService(client, serviceName, namespace)
 	if err != nil {

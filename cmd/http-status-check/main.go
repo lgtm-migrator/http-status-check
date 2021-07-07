@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/sighupio/fip-commons/pkg/kube"
 	"github.com/sighupio/http-status-check/internal/healthcheck"
-	"github.com/sighupio/service-endpoints-check/pkg/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -46,14 +46,16 @@ func main() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
-func initClient() *client.KubernetesClient {
-	config, err := client.Config("")
+func initClient() *kube.KubernetesClient {
+	k := kube.KubernetesClient{}
+	err := k.Init()
+
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(-1)
+		log.WithError(err).Error("error. Something happened while trying to get connection to the API Server")
+		os.Exit(1)
 	}
 
-	return &client.KubernetesClient{Client: config}
+	return &k
 }
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
