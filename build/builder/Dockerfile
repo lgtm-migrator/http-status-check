@@ -53,4 +53,4 @@ RUN go build
 FROM debian:buster as release
 
 COPY --from=builder /app/cmd/http-status-check/http-status-check /http-status-check
-CMD ["/http-status-check"]
+ENTRYPOINT ["/http-status-check"]

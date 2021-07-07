@@ -13,7 +13,8 @@
 run:
   # include test files or not, default is true
   tests: false
-  timeout: 5m
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  timeout: 10m
 
 # configure golangci-lint
 # see https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
@@ -21,30 +22,51 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-      - dupl
-      - gosec
-      - goconst
+        - dupl
+        - goconst
+    - path: cmd/
+      linters:
+        - gochecknoinits
+        - lll
+    - path: cmd/example-check/main.go
+      linters:
+        - gochecknoglobals
 linters:
+  disable-all: true
   enable:
-    - golint
-    - gosec
-    - unconvert
-    - gocyclo
+    - ineffassign
+    - asciicheck
+    - dogsled
+    - dupl
+    - exportloopref
+    - funlen
+    - gci
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
     - goconst
+    - gocyclo
+    - godot
+    - godox
+    - gofmt
+    - goheader
     - goimports
-    - maligned
-    - gocritic
+    - gomnd
+    - gomodguard
+    - goprintffuncname
+    - lll
+    - misspell
+    - nakedret
+    - nestif
+    - nlreturn
+    - nolintlint
+    - prealloc
+    - testpackage
+    - whitespace
+    - wsl
+    - revive
+
 linters-settings:
-  errcheck:
-    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`;
-    # default is false: such cases aren't reported by default.
-    check-blank: true
-  govet:
-    # report about shadowed variables
-    check-shadowing: true
   gocyclo:
     # minimal code complexity to report, 30 by default
     min-complexity: 15
-  maligned:
-    # print struct with more effective memory layout or not, false by default
-    suggest-new: true

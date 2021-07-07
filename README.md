@@ -19,17 +19,20 @@
 
 ## Overview
 
-http-status-check is a tool that TBD
+http-status-check is a tool that monitors the http endpoints in a
+kubernetes cluster.
 
-The tool can be used to TBD:
-
-* As a standalone tool to connect to the local Kubernetes cluster
-
-* As a standalone tool to connect to a remote Kubernetes cluster
+The tool can be used to monitor the HTTP endpoints of a service. It
+check if the service endpoints responds with an HTTP status 200 OK.
+Please note that this tool only supports an in-cluster deployment. The
+tool can be deployed in the following ways:
 
 * As a Kubernetes Job accessing services in the same cluster authorized using RBAC
 
 ## Getting Started
+
+> Please note that this tool doesn't monitor services from outside of
+> the cluster since endpoint IPs won't be reachable.
 
 ### Installation
 
@@ -38,7 +41,7 @@ as follows:
 
 * Using Go get
 
-```sh
+``` sh
 $ go get -u github.com/sighupio/http-status-check/cmd/http-status-check
 #
 ```
@@ -54,6 +57,8 @@ The basic usage info of the tool can be seen by using the following command:
 $ http-status-check -h
 #
 ```
+
+![command](cmd.png)
 
 > [Refer this extended documentation on CLI usage for more](./cmd/http-status-check/README.md)
 
@@ -73,17 +78,10 @@ The above image can be run exactly the way the CLI is used like shown by the
 code block below:
 
 ``` sh
-$ docker run -it http-status-check:local-build ./http-status-check -h
-http-status-check TBD
-
-Usage:
-  http-status-check [flags]
-
-Flags:
-  -h, --help                help for http-status-check
-
-$ docker run -v .kube/:/root/.kube/ -it http-status-check:local-build  \
-                            ./http-status-check  --flag-1=1 --flag-2=2
+$ docker run -it status-status-check:local-build -h
+#
+$ docker run -v .kube/:/root/.kube/ -it http-status-check:local-build \
+                                            --service=mypod
 ```
 
 ### Deploy in a cluster as a Job

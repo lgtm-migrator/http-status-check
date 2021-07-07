@@ -7,6 +7,7 @@ require (
 	github.com/google/addlicense v0.0.0-20210428195630-6d92264d7170 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/sighupio/poc-service-endpoints-check v0.0.0-20210625121503-9255bf1f0c0b // indirect
+	github.com/sighupio/service-endpoints-check v0.0.0-20210625150411-0fbbcb8982ef
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v1.1.3
