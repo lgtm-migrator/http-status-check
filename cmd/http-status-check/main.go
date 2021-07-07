@@ -24,6 +24,7 @@ var cfgFile string      // nolint:gochecknoglobals // this will be removed in re
 var namespace string    // nolint:gochecknoglobals // this will be removed in revamp
 var httpEp string       // nolint:gochecknoglobals // this will be removed in revamp
 var serviceName string  // nolint:gochecknoglobals // this will be removed in revamp
+var kubeConfig string   // nolint:gochecknoglobals // this will be removed in revamp
 const envPrefix = "HSC" // nolint:gochecknoglobals // this will be removed in revamp
 
 var rootCmd = &cobra.Command{ // nolint:gochecknoglobals // this will be removed in revamp
@@ -47,7 +48,7 @@ func main() {
 }
 
 func initClient() *kube.KubernetesClient {
-	k := kube.KubernetesClient{}
+	k := kube.KubernetesClient{KubeConfig: kubeConfig}
 	err := k.Init()
 
 	if err != nil {
@@ -88,6 +89,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&serviceName, "service", "s", "", "Name of the service to monitor (required)")
 	rootCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Namespace of the service to monitor")
 	rootCmd.Flags().StringVarP(&httpEp, "http-path", "p", "/", "HTTP Path to monitor")
+	rootCmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "kubeconfig file. default: in-cluster configuration, Fallback $HOME/.kube/config")
 	bindFlags(rootCmd, v)
 
 	err := rootCmd.MarkFlagRequired("service")
