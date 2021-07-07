@@ -7,11 +7,11 @@ package healthcheck
 import (
 	"fmt"
 
+	"github.com/sighupio/fip-commons/pkg/kube"
 	"github.com/sighupio/http-status-check/pkg/healthcheck"
-	"github.com/sighupio/service-endpoints-check/pkg/client"
 )
 
-func ValidateHTTPEndpoint(client *client.KubernetesClient,
+func ValidateHTTPEndpoint(client *kube.KubernetesClient,
 	service string,
 	namespace string, httpPath string) error {
 	const successStatusCode = 200

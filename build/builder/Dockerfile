@@ -34,7 +34,7 @@ COPY cmd cmd
 COPY pkg pkg
 COPY internal internal
 
-RUN go test ./...
+RUN go test -v ./... -cover
 
 FROM golang:1.16 as builder
 

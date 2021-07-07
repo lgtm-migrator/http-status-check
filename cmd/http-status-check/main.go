@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/sighupio/fip-commons/pkg/kube"
 	"github.com/sighupio/http-status-check/internal/healthcheck"
-	"github.com/sighupio/service-endpoints-check/pkg/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -24,6 +24,7 @@ var cfgFile string      // nolint:gochecknoglobals // this will be removed in re
 var namespace string    // nolint:gochecknoglobals // this will be removed in revamp
 var httpEp string       // nolint:gochecknoglobals // this will be removed in revamp
 var serviceName string  // nolint:gochecknoglobals // this will be removed in revamp
+var kubeConfig string   // nolint:gochecknoglobals // this will be removed in revamp
 const envPrefix = "HSC" // nolint:gochecknoglobals // this will be removed in revamp
 
 var rootCmd = &cobra.Command{ // nolint:gochecknoglobals // this will be removed in revamp
@@ -46,14 +47,16 @@ func main() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
-func initClient() *client.KubernetesClient {
-	config, err := client.Config("")
+func initClient() *kube.KubernetesClient {
+	k := kube.KubernetesClient{KubeConfig: kubeConfig}
+	err := k.Init()
+
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(-1)
+		log.WithError(err).Error("error. Something happened while trying to get connection to the API Server")
+		os.Exit(1)
 	}
 
-	return &client.KubernetesClient{Client: config}
+	return &k
 }
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
@@ -86,6 +89,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&serviceName, "service", "s", "", "Name of the service to monitor (required)")
 	rootCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Namespace of the service to monitor")
 	rootCmd.Flags().StringVarP(&httpEp, "http-path", "p", "/", "HTTP Path to monitor")
+	rootCmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "kubeconfig file. default: in-cluster configuration, Fallback $HOME/.kube/config")
 	bindFlags(rootCmd, v)
 
 	err := rootCmd.MarkFlagRequired("service")

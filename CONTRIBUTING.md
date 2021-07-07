@@ -47,7 +47,7 @@ The `drone-init` target is required to be executed just one time after creating 
 Once the project is initialized you'll receive a message like:
 
 ```bash
-$ GITHUB_PROJECT=demo GITHUB_TOKEN=123token321 DRONE_TOKEN=tokenhere REGISTRY=registry.sighup.io REGISTRY_USER=robotuser REGISTRY_PASSWORD=thepassword make init
+$ GITHUB_PROJECT=demo GITHUB_TOKEN=123token321 DRONE_TOKEN=tokenhere REGISTRY=registry.sighup.io REGISTRY_USER=robotuser REGISTRY_PASSWORD=thepassword make drone-init
 Project already initialized with name demo-check
 ```
 
@@ -134,7 +134,7 @@ COPY cmd cmd
 COPY pkg pkg
 COPY internal internal
 
-RUN go test ./...
+RUN go test -v ./... -cover
 
 FROM golang:1.16 as builder
 
@@ -144,7 +144,7 @@ RUN mkdir /app
 .
 ```
 
-Currently it executes `go test ./...` but feel free to modify with the right command.
+Currently it executes `go test -v ./... -cover` but feel free to modify with the right command.
 
 ### license
 

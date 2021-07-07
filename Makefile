@@ -21,8 +21,8 @@ optional-variable-%: # detection of undefined variables.
 check-%: # detection of required software.
 	@which ${*} > /dev/null || (echo '*** Please install `${*}` ***' && exit 1)
 
-## init: Init the project. GITHUB_PROJECT=demo
-init: check-variable-GITHUB_PROJECT make init
+## init: Init the project. GITHUB_PROJECT=demo make init
+init: check-variable-GITHUB_PROJECT
 	@test -f ./scripts/init.sh && ./scripts/init.sh ${GITHUB_PROJECT} || echo "Project already initialized with name ${GITHUB_PROJECT}"
 
 ## drone-init: Init the drone-project. GITHUB_PROJECT=demo GITHUB_TOKEN=123token321 DRONE_TOKEN=tokenhere REGISTRY=registry.sighup.io REGISTRY_USER=robotuser REGISTRY_PASSWORD=thepassword make drone-init
