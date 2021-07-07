@@ -5,41 +5,14 @@
 package healthcheck
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"path"
 
-	"github.com/sighupio/fip-commons/pkg/kube"
-	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func getService(kc *kube.KubernetesClient,
-	svcName string,
-	namespace string) (*corev1.Service, error) {
-	service, err := kc.Client.CoreV1().Services(namespace).Get(context.TODO(),
-		svcName, metav1.GetOptions{})
-
-	return service, err
-}
-
-func getEndpoints(kc *kube.KubernetesClient, service *corev1.Service,
-	namespace string) (*corev1.Endpoints, error) {
-	// Retrieve all the endpoints corresponding to the service
-	// Name of the endpoint will always match that of the svc
-	endpoint, err := kc.Client.CoreV1().Endpoints(namespace).Get(
-		context.TODO(), service.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	return endpoint, err
-}
-
-func epAddress(endpoint *corev1.Endpoints) ([]string, []int32) {
+func EpAddress(endpoint *corev1.Endpoints) ([]string, []int32) {
 	var epAddrs []string
 
 	var epPorts []int32
@@ -70,51 +43,11 @@ func JoinURL(base string, httpPath string) (string, error) {
 	return u.String(), nil
 }
 
-func makehttpCall(url string) (*http.Response, error) {
+func MakehttpCall(url string) (*http.Response, error) {
 	resp, err := http.Get(url) // nolint:gosec // G107: Url generation
 	if err != nil {
 		return nil, err
 	}
 
 	return resp, nil
-}
-
-func CallServiceHTTPEndpoint(client *kube.KubernetesClient,
-	serviceName string, namespace string, httpPath string) (map[string]int, error) {
-	service, err := getService(client, serviceName, namespace)
-	if err != nil {
-		return nil, err
-	}
-
-	endpoints, err := getEndpoints(client, service, namespace)
-	if err != nil {
-		return nil, err
-	}
-
-	statusCodes := make(map[string]int)
-
-	addrs, ports := epAddress(endpoints)
-	if len(addrs) == 0 || len(ports) == 0 {
-		return nil, fmt.Errorf("No endpoint addresses were found service  "+
-			"%v (namespace %v)", serviceName, namespace)
-	}
-
-	for _, addr := range addrs {
-		for _, port := range ports {
-			url, err := JoinURL(fmt.Sprintf("http://%v:%v", addr, port), httpPath)
-			if err != nil {
-				log.Fatalf("IP parsing error service %v address: IP %v port %d",
-					serviceName, addr, port)
-			}
-
-			resp, err := makehttpCall(url)
-			if err != nil {
-				return nil, err
-			}
-
-			statusCodes[url] = resp.StatusCode
-		}
-	}
-
-	return statusCodes, nil
 }

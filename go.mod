@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/sighupio/fip-commons v0.1.4
+	github.com/sighupio/fip-commons v0.1.2-0.20210707144649-b845728484d3
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
