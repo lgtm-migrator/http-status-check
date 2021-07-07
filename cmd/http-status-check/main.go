@@ -14,19 +14,19 @@ import (
 	"github.com/sighupio/service-endpoints-check/pkg/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	// nolint:typecheck
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var cfgFile string      // nolint:gochecknoglobals // this will be removed in revamp
+var namespace string    // nolint:gochecknoglobals // this will be removed in revamp
+var httpEp string       // nolint:gochecknoglobals // this will be removed in revamp
+var serviceName string  // nolint:gochecknoglobals // this will be removed in revamp
+const envPrefix = "HSC" // nolint:gochecknoglobals // this will be removed in revamp
 
-var namespace string
-var httpEp string
-var serviceName string
-
-const envPrefix = "HSC"
-
-var rootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{ // nolint:gochecknoglobals // this will be removed in revamp
 	Use:   "http-status-check",
 	Short: "Health check to monitor the http endpoints of a service",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -52,6 +52,7 @@ func initClient() *client.KubernetesClient {
 		log.Fatal(err)
 		os.Exit(-1)
 	}
+
 	return &client.KubernetesClient{Client: config}
 }
 
@@ -65,11 +66,8 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 			if err != nil {
 				log.Fatal(err)
 				os.Exit(-1)
-
 			}
-
 		}
-
 		// Apply the viper config value to the flag when the flag is not set and viper has a value
 		if !f.Changed && v.IsSet(f.Name) {
 			val := v.Get(f.Name)
@@ -77,7 +75,6 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 			if err != nil {
 				log.Fatal(err)
 				os.Exit(-1)
-
 			}
 		}
 	})
@@ -90,11 +87,13 @@ func init() {
 	rootCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Namespace of the service to monitor")
 	rootCmd.Flags().StringVarP(&httpEp, "http-path", "p", "/", "HTTP Path to monitor")
 	bindFlags(rootCmd, v)
+
 	err := rootCmd.MarkFlagRequired("service")
 	if err != nil {
 		log.WithError(err).Fatal("error in the cli. Exiting")
 		os.Exit(1)
 	}
+
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file "+
 		"(default is $HOME/.http-status-check.yaml)")
 }
@@ -108,13 +107,11 @@ func initConfig() *viper.Viper {
 		// Find home directory.
 		home, err := homedir.Dir()
 		cobra.CheckErr(err)
-
 		// Search config in home directory with name (without extension).
 		v.AddConfigPath(home)
 		v.SetConfigType("yaml")
 		v.SetConfigName(".http-status-check")
 	}
-
 	// Attempt to read the config file, gracefully ignoring errors
 	// caused by a config file not being found. Return an error
 	// if we cannot parse the config file.
@@ -126,10 +123,10 @@ func initConfig() *viper.Viper {
 	}
 
 	v.SetEnvPrefix(envPrefix)
-
 	// Bind to environment variables
 	// Works great for simple config names, but needs help for names
 	// like --favorite-color which we fix in the bindFlags function
 	v.AutomaticEnv()
+
 	return v
 }

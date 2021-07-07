@@ -11,10 +11,8 @@ import (
 	"net/url"
 	"path"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/sighupio/service-endpoints-check/pkg/client"
-
+	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -26,37 +24,38 @@ func getService(kc *client.KubernetesClient,
 		svcName, metav1.GetOptions{})
 
 	return service, err
-
 }
 
 func getEndpoints(kc *client.KubernetesClient, service *corev1.Service,
 	namespace string) (*corev1.Endpoints, error) {
-
-	// Retrive all the endpoints corresponding to the service
+	// Retrieve all the endpoints corresponding to the service
 	// Name of the endpoint will always match that of the svc
 	endpoint, err := kc.Client.CoreV1().Endpoints(namespace).Get(
 		context.TODO(), service.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
+
 	return endpoint, err
 }
 
 func epAddress(endpoint *corev1.Endpoints) ([]string, []int32) {
 	var epAddrs []string
+
 	var epPorts []int32
 
 	for _, subset := range endpoint.Subsets {
 		for _, address := range subset.Addresses {
 			epAddrs = append(epAddrs, address.IP)
 		}
+
 		for _, port := range subset.Ports {
 			if port.Protocol == "TCP" {
 				epPorts = append(epPorts, port.Port)
-
 			}
 		}
 	}
+
 	return epAddrs, epPorts
 }
 
@@ -65,16 +64,18 @@ func JoinURL(base string, httpPath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	u.Path = path.Join(u.Path, httpPath)
+
 	return u.String(), nil
 }
 
 func makehttpCall(url string) (*http.Response, error) {
-	/* #nosec G107: Url generation*/
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) // nolint:gosec // G107: Url generation
 	if err != nil {
 		return nil, err
 	}
+
 	return resp, nil
 }
 
@@ -89,13 +90,15 @@ func CallServiceHTTPEndpoint(client *client.KubernetesClient,
 	if err != nil {
 		return nil, err
 	}
+
 	statusCodes := make(map[string]int)
+
 	addrs, ports := epAddress(endpoints)
 	if len(addrs) == 0 || len(ports) == 0 {
 		return nil, fmt.Errorf("No endpoint addresses were found service  "+
 			"%v (namespace %v)", serviceName, namespace)
-
 	}
+
 	for _, addr := range addrs {
 		for _, port := range ports {
 			url, err := JoinURL(fmt.Sprintf("http://%v:%v", addr, port), httpPath)
@@ -103,12 +106,15 @@ func CallServiceHTTPEndpoint(client *client.KubernetesClient,
 				log.Fatalf("IP parsing error service %v address: IP %v port %d",
 					serviceName, addr, port)
 			}
+
 			resp, err := makehttpCall(url)
 			if err != nil {
 				return nil, err
 			}
+
 			statusCodes[url] = resp.StatusCode
 		}
 	}
+
 	return statusCodes, nil
 }
