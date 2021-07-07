@@ -6,17 +6,17 @@ package config
 
 import "github.com/sighupio/fip-commons/pkg/kube"
 
-// PscConfig hosts the configuration of the application.
+// HscConfig hosts the configuration of the application.
 type HscConfig struct {
 	CfgFile     string
 	Namespace   string
-	HttpPath    string
+	HTTPPath    string
 	ServiceName string
 	LogLevel    string
 	KubeClient  kube.KubernetesClient
 }
 
-// NewPscConfig creates an empty configuration struct.
+// NewHscConfig creates an empty configuration struct.
 func NewHscConfig() *HscConfig {
 	return &HscConfig{}
 }

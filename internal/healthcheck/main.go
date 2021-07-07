@@ -52,7 +52,7 @@ func callServiceHTTPEndpoint(cfg *config.HscConfig) (map[string]int, error) {
 
 	for _, addr := range addrs {
 		for _, port := range ports {
-			url, err := pkg.JoinURL(fmt.Sprintf("http://%v:%v", addr, port), cfg.HttpPath)
+			url, err := pkg.JoinURL(fmt.Sprintf("http://%v:%v", addr, port), cfg.HTTPPath)
 			if err != nil {
 				log.Fatalf("IP parsing error service %v address: IP %v port %d",
 					cfg.ServiceName, addr, port)

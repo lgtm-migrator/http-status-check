@@ -14,6 +14,8 @@ import (
 	config "github.com/sighupio/http-status-check/internal/config"
 	internal "github.com/sighupio/http-status-check/internal/healthcheck"
 	log "github.com/sirupsen/logrus"
+
+	// nolint:typecheck
 	"github.com/spf13/cobra"
 
 	// nolint:typecheck
@@ -28,15 +30,16 @@ var rootCmd = &cobra.Command{ // nolint:gochecknoglobals
 	PersistentPreRunE: cmdConfig,
 	Use:               "http-status-check",
 	Short:             "Health check to monitor the http endpoints of a service",
-	Run: func(cmd *cobra.Command, args []string) {
+	SilenceUsage:      true,
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := internal.ValidateHTTPEndpoint(cfg)
 		if err != nil {
-			log.Fatal(err)
-			os.Exit(1)
+			return err
 		}
 		log.Infof("HTTP path %v of Service %v in namespace %v responded with 200",
-			cfg.HttpPath, cfg.ServiceName, cfg.Namespace)
-		os.Exit(0)
+			cfg.HTTPPath, cfg.ServiceName, cfg.Namespace)
+
+		return nil
 	},
 }
 
@@ -94,11 +97,14 @@ func init() {
 		"Name of the service to monitor (required)")
 	rootCmd.Flags().StringVarP(&cfg.Namespace, "namespace", "n",
 		"default", "Namespace of the service to monitor")
-	rootCmd.Flags().StringVarP(&cfg.HttpPath, "http-path", "p", "/",
+	rootCmd.Flags().StringVarP(&cfg.HTTPPath, "http-path", "p", "/",
 		"HTTP Path to monitor")
-	rootCmd.Flags().StringVar(&cfg.KubeClient.KubeConfig, "kubeconfig", "",
+	rootCmd.Flags().StringVar(&cfg.KubeClient.KubeConfig, "KUBECONFIG", "",
 		"kubeconfig file. default: in-cluster configuration, "+
 			"Fallback $HOME/.kube/config")
+	rootCmd.PersistentFlags().StringVar(&cfg.LogLevel, "log-level",
+		"info", "logging level (debug, info...)")
+
 	bindFlags(rootCmd, v)
 
 	err := rootCmd.MarkFlagRequired("service")
@@ -145,5 +151,8 @@ func initConfig() *viper.Viper {
 }
 
 func main() {
-	cobra.CheckErr(rootCmd.Execute())
+	if err := rootCmd.Execute(); err != nil {
+		log.WithError(err).Fatal("error in the cli. Exiting")
+		os.Exit(1)
+	}
 }
