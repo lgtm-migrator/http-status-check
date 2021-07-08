@@ -5,6 +5,7 @@
 package healthcheck
 
 import (
+	"context"
 	"fmt"
 
 	config "github.com/sighupio/http-status-check/internal/config"
@@ -12,10 +13,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ValidateHTTPEndpoint(cfg *config.HscConfig) error {
+func ValidateHTTPEndpoint(ctx *context.Context, cfg *config.HscConfig) error {
 	const successStatusCode = 200
 
-	statusCodes, err := callServiceHTTPEndpoint(cfg)
+	statusCodes, err := callServiceHTTPEndpoint(ctx, cfg)
 	if err != nil {
 		return err
 	}
@@ -31,13 +32,13 @@ func ValidateHTTPEndpoint(cfg *config.HscConfig) error {
 	return nil
 }
 
-func callServiceHTTPEndpoint(cfg *config.HscConfig) (map[string]int, error) {
-	service, err := cfg.KubeClient.GetService(cfg.ServiceName, cfg.Namespace)
+func callServiceHTTPEndpoint(ctx *context.Context, cfg *config.HscConfig) (map[string]int, error) {
+	service, err := cfg.KubeClient.GetService(ctx, cfg.ServiceName, cfg.Namespace)
 	if err != nil {
 		return nil, err
 	}
 
-	endpoints, err := cfg.KubeClient.GetEndpoints(service, cfg.Namespace)
+	endpoints, err := cfg.KubeClient.GetEndpoints(ctx, service, cfg.Namespace)
 	if err != nil {
 		return nil, err
 	}

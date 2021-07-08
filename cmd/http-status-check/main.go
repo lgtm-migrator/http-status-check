@@ -32,7 +32,8 @@ var rootCmd = &cobra.Command{ // nolint:gochecknoglobals
 	Short:             "Health check to monitor the http endpoints of a service",
 	SilenceUsage:      true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := internal.ValidateHTTPEndpoint(cfg)
+		ctx := context.Background()
+		err := internal.ValidateHTTPEndpoint(&ctx, cfg)
 		if err != nil {
 			return err
 		}
@@ -54,8 +55,7 @@ func cmdConfig(cmd *cobra.Command, args []string) error {
 	log.SetLevel(lvl)
 	log.WithField("log-level", cfg.LogLevel).Debug("log level configured")
 
-	ctx := context.Background()
-	err = cfg.KubeClient.Init(&ctx)
+	err = cfg.KubeClient.Init()
 
 	if err != nil {
 		log.WithField("kubeconfig", cfg.KubeClient.KubeConfig).Fatal("incorrect kubeconfig configuration")
