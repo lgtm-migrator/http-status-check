@@ -5,7 +5,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -32,7 +31,7 @@ var rootCmd = &cobra.Command{ // nolint:gochecknoglobals
 	Short:             "Health check to monitor the http endpoints of a service",
 	SilenceUsage:      true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx := context.Background()
+		ctx := cmd.Context()
 		err := internal.ValidateHTTPEndpoint(&ctx, cfg)
 		if err != nil {
 			return err
