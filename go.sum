@@ -208,8 +208,12 @@ github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQD
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
+github.com/sighupio/fip-commons v0.1.2-0.20210707144649-b845728484d3 h1:mRgJXsaTyLBdmkCdGW9V1TmNi/L25pUQiBr6s+mdXbM=
+github.com/sighupio/fip-commons v0.1.2-0.20210707144649-b845728484d3/go.mod h1:zprEzJsNj+PbiEZzS0ggcJterw6QelmvnmDs1vs2hpg=
 github.com/sighupio/fip-commons v0.1.4 h1:GeeODpcNFb757wZCozaYRhErinfVT+u4I3LTmO0m6xM=
 github.com/sighupio/fip-commons v0.1.4/go.mod h1:sdCQrdiZFhv7qWMYdrMgxqKmLoxuA+wzCg3wQwkt2Q4=
+github.com/sighupio/fip-commons v0.1.5-0.20210708081704-55b6b31755f8 h1:5zlGtc1WNpR/EAiQ2APencq5QAfLdL5XUhm2cMJSh1c=
+github.com/sighupio/fip-commons v0.1.5-0.20210708081704-55b6b31755f8/go.mod h1:zprEzJsNj+PbiEZzS0ggcJterw6QelmvnmDs1vs2hpg=
 github.com/sirupsen/logrus v1.2.0 h1:juTguoYk5qI21pwyTXY3B3Y5cOTH3ZUyZCg1v/mihuo=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d h1:zE9ykElWQ6/NYmHa3jpm/yHnI4xSofP+UP6SpjHcSeM=

@@ -10,9 +10,11 @@ import (
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/sighupio/fip-commons/pkg/kube"
-	"github.com/sighupio/http-status-check/internal/healthcheck"
+	config "github.com/sighupio/http-status-check/internal/config"
+	internal "github.com/sighupio/http-status-check/internal/healthcheck"
 	log "github.com/sirupsen/logrus"
+
+	// nolint:typecheck
 	"github.com/spf13/cobra"
 
 	// nolint:typecheck
@@ -20,43 +22,47 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string      // nolint:gochecknoglobals // this will be removed in revamp
-var namespace string    // nolint:gochecknoglobals // this will be removed in revamp
-var httpEp string       // nolint:gochecknoglobals // this will be removed in revamp
-var serviceName string  // nolint:gochecknoglobals // this will be removed in revamp
-var kubeConfig string   // nolint:gochecknoglobals // this will be removed in revamp
-const envPrefix = "HSC" // nolint:gochecknoglobals // this will be removed in revamp
+var cfg = config.NewHscConfig() // nolint:gochecknoglobals
+const envPrefix = "HSC"         // nolint:gochecknoglobals
 
-var rootCmd = &cobra.Command{ // nolint:gochecknoglobals // this will be removed in revamp
-	Use:   "http-status-check",
-	Short: "Health check to monitor the http endpoints of a service",
-	Run: func(cmd *cobra.Command, args []string) {
-		clientSet := initClient()
-		err := healthcheck.ValidateHTTPEndpoint(clientSet, serviceName, namespace, httpEp)
+var rootCmd = &cobra.Command{ // nolint:gochecknoglobals
+	PersistentPreRunE: cmdConfig,
+	Use:               "http-status-check",
+	Short:             "Health check to monitor the http endpoints of a service",
+	SilenceUsage:      true,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
+		err := internal.ValidateHTTPEndpoint(&ctx, cfg)
 		if err != nil {
-			log.Fatal(err)
-			os.Exit(1)
+			return err
 		}
 		log.Infof("HTTP path %v of Service %v in namespace %v responded with 200",
-			httpEp, serviceName, namespace)
-		os.Exit(0)
+			cfg.HTTPPath, cfg.ServiceName, cfg.Namespace)
+
+		return nil
 	},
 }
 
-func main() {
-	cobra.CheckErr(rootCmd.Execute())
-}
-
-func initClient() *kube.KubernetesClient {
-	k := kube.KubernetesClient{KubeConfig: kubeConfig}
-	err := k.Init()
-
+func cmdConfig(cmd *cobra.Command, args []string) error {
+	lvl, err := log.ParseLevel(cfg.LogLevel)
 	if err != nil {
-		log.WithError(err).Error("error. Something happened while trying to get connection to the API Server")
-		os.Exit(1)
+		log.WithField("log-level", cfg.LogLevel).Fatal("incorrect log level")
+
+		return fmt.Errorf("incorrect log level")
 	}
 
-	return &k
+	log.SetLevel(lvl)
+	log.WithField("log-level", cfg.LogLevel).Debug("log level configured")
+
+	err = cfg.KubeClient.Init()
+
+	if err != nil {
+		log.WithField("kubeconfig", cfg.KubeClient.KubeConfig).Fatal("incorrect kubeconfig configuration")
+
+		return fmt.Errorf("incorrect kubeconfig configuration")
+	}
+
+	return nil
 }
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
@@ -86,10 +92,18 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 func init() {
 	v := initConfig()
 
-	rootCmd.Flags().StringVarP(&serviceName, "service", "s", "", "Name of the service to monitor (required)")
-	rootCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Namespace of the service to monitor")
-	rootCmd.Flags().StringVarP(&httpEp, "http-path", "p", "/", "HTTP Path to monitor")
-	rootCmd.Flags().StringVar(&kubeConfig, "kubeconfig", "", "kubeconfig file. default: in-cluster configuration, Fallback $HOME/.kube/config")
+	rootCmd.Flags().StringVarP(&cfg.ServiceName, "service", "s", "",
+		"Name of the service to monitor (required)")
+	rootCmd.Flags().StringVarP(&cfg.Namespace, "namespace", "n",
+		"default", "Namespace of the service to monitor")
+	rootCmd.Flags().StringVarP(&cfg.HTTPPath, "http-path", "p", "/",
+		"HTTP Path to monitor")
+	rootCmd.Flags().StringVar(&cfg.KubeClient.KubeConfig, "KUBECONFIG", "",
+		"kubeconfig file. default: in-cluster configuration, "+
+			"Fallback $HOME/.kube/config")
+	rootCmd.PersistentFlags().StringVar(&cfg.LogLevel, "log-level",
+		"info", "logging level (debug, info...)")
+
 	bindFlags(rootCmd, v)
 
 	err := rootCmd.MarkFlagRequired("service")
@@ -98,15 +112,15 @@ func init() {
 		os.Exit(1)
 	}
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file "+
+	rootCmd.PersistentFlags().StringVar(&cfg.CfgFile, "config", "", "config file "+
 		"(default is $HOME/.http-status-check.yaml)")
 }
 
 func initConfig() *viper.Viper {
 	v := viper.New()
-	if cfgFile != "" {
+	if cfg.CfgFile != "" {
 		// Use config file from the flag.
-		v.SetConfigFile(cfgFile)
+		v.SetConfigFile(cfg.CfgFile)
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()
@@ -133,4 +147,11 @@ func initConfig() *viper.Viper {
 	v.AutomaticEnv()
 
 	return v
+}
+
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		log.WithError(err).Fatal("error in the cli. Exiting")
+		os.Exit(1)
+	}
 }

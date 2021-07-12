@@ -5,18 +5,18 @@
 package healthcheck
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/sighupio/fip-commons/pkg/kube"
-	"github.com/sighupio/http-status-check/pkg/healthcheck"
+	config "github.com/sighupio/http-status-check/internal/config"
+	pkg "github.com/sighupio/http-status-check/pkg/healthcheck"
+	log "github.com/sirupsen/logrus"
 )
 
-func ValidateHTTPEndpoint(client *kube.KubernetesClient,
-	service string,
-	namespace string, httpPath string) error {
+func ValidateHTTPEndpoint(ctx *context.Context, cfg *config.HscConfig) error {
 	const successStatusCode = 200
 
-	statusCodes, err := healthcheck.CallServiceHTTPEndpoint(client, service, namespace, httpPath)
+	statusCodes, err := callServiceHTTPEndpoint(ctx, cfg)
 	if err != nil {
 		return err
 	}
@@ -24,10 +24,49 @@ func ValidateHTTPEndpoint(client *kube.KubernetesClient,
 	for url, code := range statusCodes {
 		if code != successStatusCode {
 			return fmt.Errorf("Endpoint %v of service %v "+
-				"(namespace %v) responded with %v (expected 200)", url,
-				service, namespace, code)
+				"(namespace %v) responded with %v (expected %d)", url,
+				cfg.ServiceName, cfg.Namespace, code, successStatusCode)
 		}
 	}
 
 	return nil
+}
+
+func callServiceHTTPEndpoint(ctx *context.Context, cfg *config.HscConfig) (map[string]int, error) {
+	service, err := cfg.KubeClient.GetService(ctx, cfg.ServiceName, cfg.Namespace)
+	if err != nil {
+		return nil, err
+	}
+
+	endpoints, err := cfg.KubeClient.GetEndpoints(ctx, service, cfg.Namespace)
+	if err != nil {
+		return nil, err
+	}
+
+	statusCodes := make(map[string]int)
+
+	addrs, ports := pkg.EpAddress(endpoints)
+	if len(addrs) == 0 || len(ports) == 0 {
+		return nil, fmt.Errorf("No endpoint addresses were found service  "+
+			"%v (namespace %v)", cfg.ServiceName, cfg.Namespace)
+	}
+
+	for _, addr := range addrs {
+		for _, port := range ports {
+			url, err := pkg.JoinURL(fmt.Sprintf("http://%v:%v", addr, port), cfg.HTTPPath)
+			if err != nil {
+				log.Fatalf("IP parsing error service %v address: IP %v port %d",
+					cfg.ServiceName, addr, port)
+			}
+
+			resp, err := pkg.MakehttpCall(url)
+			if err != nil {
+				return nil, err
+			}
+
+			statusCodes[url] = resp.StatusCode
+		}
+	}
+
+	return statusCodes, nil
 }
