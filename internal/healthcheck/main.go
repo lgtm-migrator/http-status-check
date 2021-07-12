@@ -24,8 +24,8 @@ func ValidateHTTPEndpoint(ctx *context.Context, cfg *config.HscConfig) error {
 	for url, code := range statusCodes {
 		if code != successStatusCode {
 			return fmt.Errorf("Endpoint %v of service %v "+
-				"(namespace %v) responded with %v (expected 200)", url,
-				cfg.ServiceName, cfg.Namespace, code)
+				"(namespace %v) responded with %v (expected %d)", url,
+				cfg.ServiceName, cfg.Namespace, code, successStatusCode)
 		}
 	}
 
