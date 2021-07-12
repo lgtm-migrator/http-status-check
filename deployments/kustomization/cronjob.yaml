@@ -6,6 +6,11 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: http-status-check
+  labels:
+    app.kubernetes.io/created-by: healthcheck-controller
+    kfip.sighup.io/group: SampleGroup
+    kfip.sighup.io/target: SampleTarget
+    kfip.sighup.io/check: http-status-check
 spec:
   schedule: "*/5 * * * *"
   startingDeadlineSeconds: 20 # if a job hasn't starting in this many seconds, skip
