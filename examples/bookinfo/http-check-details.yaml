@@ -1,0 +1,33 @@
+# Copyright (c) 2021 SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: http-check-details
+spec:
+  schedule: "*/5 * * * *"
+  startingDeadlineSeconds: 20 # if a job hasn't starting in this many seconds, skip
+  concurrencyPolicy: Forbid # either allow|forbid|replace
+  successfulJobsHistoryLimit: 3 # how many completed jobs should be
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 60 # job is marked failed after this limit
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/created-by: healthcheck-controller
+            kfip.sighup.io/group: BookInfo
+            kfip.sighup.io/target: Details
+            kfip.sighup.io/check: http-status-check
+        spec:
+          serviceAccountName: fip-check-account
+          containers:
+          - name: http-check-details
+            image: registry.sighup.io/poc/http-status-check:0.1.0
+            imagePullPolicy: IfNotPresent
+            envFrom:
+              - configMapRef:
+                  name: http-details-envs
+          restartPolicy: OnFailure
