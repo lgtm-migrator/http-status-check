@@ -20,6 +20,12 @@ spec:
     spec:
       activeDeadlineSeconds: 60 # job is marked failed after this limit
       template:
+        metadata:
+          labels:
+            app.kubernetes.io/created-by: healthcheck-controller
+            kfip.sighup.io/group: Facebook
+            kfip.sighup.io/target: WebApp
+            kfip.sighup.io/check: http-status-check
         spec:
           serviceAccountName: http-status-check
           containers:
