@@ -55,7 +55,19 @@ The basic usage info of the tool can be seen by using the following command:
 
 ```sh
 $ http-status-check -h
-#
+Health check to monitor the http endpoints of a service
+
+Usage:
+  http-status-check [flags]
+
+Flags:
+      --KUBECONFIG string   kubeconfig file. default: in-cluster configuration, Fallback $HOME/.kube/config
+      --config string       config file (default is $HOME/.http-status-check.yaml)
+  -h, --help                help for http-status-check
+  -p, --http-path string    HTTP Path to monitor (default "/")
+      --log-level string    logging level (debug, info...) (default "info")
+  -n, --namespace string    Namespace of the service to monitor (default "default")
+  -s, --service string      Name of the service to monitor (required)
 ```
 
 ![command](cmd.png)
@@ -79,9 +91,22 @@ code block below:
 
 ``` sh
 $ docker run -it status-status-check:local-build -h
-#
+Health check to monitor the http endpoints of a service
+
+Usage:
+  http-status-check [flags]
+
+Flags:
+      --KUBECONFIG string   kubeconfig file. default: in-cluster configuration, Fallback $HOME/.kube/config
+      --config string       config file (default is $HOME/.http-status-check.yaml)
+  -h, --help                help for http-status-check
+  -p, --http-path string    HTTP Path to monitor (default "/")
+      --log-level string    logging level (debug, info...) (default "info")
+  -n, --namespace string    Namespace of the service to monitor (default "default")
+  -s, --service string      Name of the service to monitor (required)
 $ docker run -v .kube/:/root/.kube/ -it http-status-check:local-build \
                                             --service=mypod
+#
 ```
 
 ### Deploy in a cluster as a Job
