@@ -118,7 +118,7 @@ kustomization file that deploys the RBAC policy letting the job look into the
 services and enpoints in a namespace and the cron job itself.
 
 We ship the deployment files under the `deployment` directory. To
-understand the usage of these files in detail head over to the [README of the
+understand the usage of these files in detail head over to the [detailed README of the
 directory](./deployments/).
 
 ### Examples

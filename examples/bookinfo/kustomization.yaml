@@ -7,6 +7,7 @@ kind: Kustomization
 namespace: bookinfo
 resources:
   # Make sure the namespace and rbac is created before this
+  - role-binding.yaml
   - http-check-product.yaml
   - http-check-details.yaml
   - http-check-ratings.yaml

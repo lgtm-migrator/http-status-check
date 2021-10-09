@@ -28,7 +28,7 @@ const envPrefix = "HSC"         // nolint:gochecknoglobals
 var rootCmd = &cobra.Command{ // nolint:gochecknoglobals
 	PersistentPreRunE: cmdConfig,
 	Use:               "http-status-check",
-	Short:             "Health check to monitor the http endpoints of a service",
+	Short:             "Health check to monitor the HTTP endpoints of a service",
 	SilenceUsage:      true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
@@ -151,6 +151,7 @@ func initConfig() *viper.Viper {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Error(err)
+		fmt.Fprintf(os.Stderr, "An error occurred: %v\n", err)
+		os.Exit(1)
 	}
 }
