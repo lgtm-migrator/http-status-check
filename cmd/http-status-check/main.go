@@ -151,7 +151,6 @@ func initConfig() *viper.Viper {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		log.WithError(err).Fatal("error in the cli. Exiting")
-		os.Exit(1)
+		log.Error(err)
 	}
 }

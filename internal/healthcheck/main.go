@@ -10,7 +10,6 @@ import (
 
 	config "github.com/sighupio/http-status-check/internal/config"
 	pkg "github.com/sighupio/http-status-check/pkg/healthcheck"
-	log "github.com/sirupsen/logrus"
 )
 
 func ValidateHTTPEndpoint(ctx *context.Context, cfg *config.HscConfig) error {
@@ -55,7 +54,7 @@ func callServiceHTTPEndpoint(ctx *context.Context, cfg *config.HscConfig) (map[s
 		for _, port := range ports {
 			url, err := pkg.JoinURL(fmt.Sprintf("http://%v:%v", addr, port), cfg.HTTPPath)
 			if err != nil {
-				log.Fatalf("IP parsing error service %v address: IP %v port %d",
+				return nil, fmt.Errorf("IP parsing error service %v address: IP %v port %d",
 					cfg.ServiceName, addr, port)
 			}
 
