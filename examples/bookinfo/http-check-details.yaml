@@ -25,7 +25,7 @@ spec:
           serviceAccountName: fip-check-account
           containers:
           - name: http-check-details
-            image: registry.sighup.io/poc/http-status-check:unstable
+            image: registry.sighup.io/poc/http-status-check:latest
             imagePullPolicy: Always
             envFrom:
               - configMapRef:
