@@ -200,7 +200,7 @@ info(){
 @test "Check the job 03 did not complete successfully" {
     info
     deploy() {
-        kubectl wait --for=condition=failed --timeout=90s job/http-status-check-job-3
+        kubectl wait --for=condition=failed --timeout=120s job/http-status-check-job-3
     }
     run deploy
 

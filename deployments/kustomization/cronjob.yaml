@@ -30,8 +30,8 @@ spec:
           serviceAccountName: http-status-check
           containers:
           - name: http-status-check
-            image: registry.sighup.io/poc/http-status-check:latest
-            imagePullPolicy: Always
+            image: registry.sighup.io/poc/http-status-check:unstable
+            imagePullPolicy: IfNotPresent
             envFrom:
               - configMapRef:
                   name: hsc-envs
