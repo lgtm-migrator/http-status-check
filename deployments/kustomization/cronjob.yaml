@@ -31,8 +31,8 @@ spec:
           containers:
           - name: http-status-check
             image: registry.sighup.io/poc/http-status-check:unstable
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
             envFrom:
               - configMapRef:
                   name: hsc-envs
-          restartPolicy: OnFailure
+          restartPolicy: Never

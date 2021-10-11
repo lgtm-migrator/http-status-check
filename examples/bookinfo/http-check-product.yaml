@@ -8,7 +8,7 @@ metadata:
   name: http-check-product
 spec:
   schedule: "*/5 * * * *"
-  startingDeadlineSeconds: 20 # if a job hasn't starting in this many seconds, skip
+  startingDeadlineSeconds: 10 # if a job hasn't starting in this many seconds, skip
   concurrencyPolicy: Forbid # either allow|forbid|replace
   successfulJobsHistoryLimit: 3 # how many completed jobs should be
   jobTemplate:
@@ -25,9 +25,9 @@ spec:
           serviceAccountName: fip-check-account
           containers:
           - name: http-check-product
-            image: registry.sighup.io/poc/http-status-check:0.1.0
-            imagePullPolicy: IfNotPresent
+            image: registry.sighup.io/poc/http-status-check:unstable
+            imagePullPolicy: Always
             envFrom:
               - configMapRef:
                   name: http-product-envs
-          restartPolicy: OnFailure
+          restartPolicy: Never

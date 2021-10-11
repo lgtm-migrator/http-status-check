@@ -25,8 +25,8 @@ spec:
           serviceAccountName: fip-check-account
           containers:
           - name: http-check-ratings
-            image: registry.sighup.io/poc/http-status-check:0.1.0
-            imagePullPolicy: IfNotPresent
+            image: registry.sighup.io/poc/http-status-check:unstable
+            imagePullPolicy: Always
             envFrom:
               - configMapRef:
                   name: http-ratings-envs
