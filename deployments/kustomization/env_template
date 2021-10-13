@@ -1,3 +1,2 @@
-HSC_SERVICE=nginx
-HSC_NAMESPACE=default
-HSC_HTTP_PATH=/
+HSC_HTTP_URL=http://sighup.io
+HSC_LOG_LEVEL=info

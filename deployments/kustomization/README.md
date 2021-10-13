@@ -44,7 +44,7 @@ created. First one is a Role called `http-status-check` has access to getting,
 listing and watching - services, endpoints and pods. This role is bound to a
 namespace and will be bound to the one in which it is created in. Then a
 role-binding is creating that binds this role to a service account called
-`http-status-check`. Consequenctly this service account is also
+`http-status-check`. Consequently this service account is also
 created under the same namespace. We will create our job with this service
 account letting it access the services and endpoints under that particular
 namespace.

@@ -32,12 +32,13 @@ var rootCmd = &cobra.Command{ // nolint:gochecknoglobals
 	SilenceUsage:      true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
-		err := internal.ValidateHTTPEndpoint(&ctx, cfg)
+
+		err := internal.ValidateHTTPEndpoint(&ctx, cfg.HTTPPath)
 		if err != nil {
 			return err
 		}
-		log.Infof("HTTP path %v of Service %v in namespace %v responded with 200",
-			cfg.HTTPPath, cfg.ServiceName, cfg.Namespace)
+
+		log.Infof("HTTP URL %v responded with 200", cfg.HTTPPath)
 
 		return nil
 	},
@@ -53,14 +54,6 @@ func cmdConfig(cmd *cobra.Command, args []string) error {
 
 	log.SetLevel(lvl)
 	log.WithField("log-level", cfg.LogLevel).Debug("log level configured")
-
-	err = cfg.KubeClient.Init()
-
-	if err != nil {
-		log.WithField("kubeconfig", cfg.KubeClient.KubeConfig).Fatal("incorrect kubeconfig configuration")
-
-		return fmt.Errorf("incorrect kubeconfig configuration")
-	}
 
 	return nil
 }
@@ -92,25 +85,14 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 func init() {
 	v := initConfig()
 
-	rootCmd.Flags().StringVarP(&cfg.ServiceName, "service", "s", "",
-		"Name of the service to monitor (required)")
-	rootCmd.Flags().StringVarP(&cfg.Namespace, "namespace", "n",
-		"default", "Namespace of the service to monitor")
-	rootCmd.Flags().StringVarP(&cfg.HTTPPath, "http-path", "p", "/",
-		"HTTP Path to monitor")
-	rootCmd.Flags().StringVar(&cfg.KubeClient.KubeConfig, "KUBECONFIG", "",
-		"kubeconfig file. default: in-cluster configuration, "+
-			"Fallback $HOME/.kube/config")
-	rootCmd.PersistentFlags().StringVar(&cfg.LogLevel, "log-level",
+	rootCmd.Flags().StringVarP(&cfg.HTTPPath, "http-url", "u", "",
+		"HTTP URL to monitor")
+	rootCmd.Flags().StringVarP(&cfg.LogLevel, "log-level", "l",
 		"info", "logging level (debug, info...)")
 
 	bindFlags(rootCmd, v)
 
-	err := rootCmd.MarkFlagRequired("service")
-	if err != nil {
-		log.WithError(err).Fatal("error in the cli. Exiting")
-		os.Exit(1)
-	}
+	rootCmd.MarkFlagRequired("http-url")
 
 	rootCmd.PersistentFlags().StringVar(&cfg.CfgFile, "config", "", "config file "+
 		"(default is $HOME/.http-status-check.yaml)")

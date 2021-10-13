@@ -1,3 +1,2 @@
-HSC_SERVICE=no-deploy
-HSC_NAMESPACE=default
-HSC_HTTP_PATH=/
+HSC_HTTP_URL=http://no-deploy.default.svc.cluster.local:8080/index.html
+HSC_LOG_LEVEL=error
