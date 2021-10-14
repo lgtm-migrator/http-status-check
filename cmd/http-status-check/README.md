@@ -3,31 +3,27 @@
 > This CLI can only be used as a Kubernetes resource since it uses
 > the internal Cluster IP to ping the endpoints
 
-The tool basically expects 3 input information to function:
+The tool basically expects 1 input information to function:
 
-* Name of the service to monitor
+* HTTP URL of the endpoint to monitor
 
-* Namespace of the service
-
-* HTTP Path to monitor
-
-These values can be provided in three different ways:
+This value can be provided in three different ways:
 
 ## As flags to the command
 
-For eg, the following command can be used to check if the endpoint `"/"`
-of the service `nginx` in default namespace responded with `200 OK`.
+For eg, the following command can be used to check if the service `nginx-svc` in
+the same cluster as the `http-status-check` tool under `default` namespaces is is reachable
+and responds with `200 OK`.
 
 ``` sh
-$ http-status-check --service nginx --http-path "/"
+$ http-status-check --http-url http://nginx-svc.default.svc.cluster.local --log-level info
 # output
 
-INFO[0000] HTTP path "/" of Service nginx in namespace default responded with 200
+INFO[0000] HTTP URL http://nginx-svc.default.svc.cluster.local responded with 200
 
 ```
 
-`http-path`(http path) and `namespace` flags are optional and will get
-default values `/` and `default` respectively.
+`--log-level` flag is optional and will get the default value `info` if not provided.
 
 ## As environment variables
 
@@ -36,20 +32,16 @@ the information. To avoid possible confusion, the environment variables has the
 prefix `HSC`. The usage can be as follows:
 
 ``` sh
-$ export HSC_SERVICE=nginx # ENV var for service
-$ export HSC_HTTP_PATH="/hello" # ENV var for http-path,
-                                 # notice that `-` becomes `_`
+$ export HSC_HTTP_URL=http://fip-service.ingress.local # ENV var for http-url
+$ export HSC_LOG_LEVEL=error # ENV var for log-level
 
-$ http-status-check --KUBECONFIG ~/.kubeconfig
+$ http-status-check
 
 #output
-FATA[0000] HTTP Endpoint "/hello" of service nginx
-(namespace: default) did not respond
+Error: HTTP status check on http://fip-service.ingress.local responded with status code 404 (expected 200)
+FATA[0000] error in the cli. Exiting                     error="HTTP status check on http://fip-service.ingress.local responded with status code 404 (expected 200)"
 exit status 1
-
 ```
-
-The default values for namespace and http-path remains the same.
 
 ## As configuration file
 
@@ -62,12 +54,11 @@ An example usage is:
 
 ``` sh
 $ cat /home/username/.config
-service: nginx
-namespace: dev
-http-path: "/app/"
+http-url: http://sighup.io/nginx
+log-level: warn
 
 $ http-status-check --config /home/username/.config
-FATA[0000] services "nginx" not found
+Error: HTTP status check on http://sighup.io/nginx responded with status code 404 (expected 200)
+FATA[0000] error in the cli. Exiting                     error="HTTP status check on http://sighup.io/nginx responded with status code 404 (expected 200)"
 exit status 1
-
 ```

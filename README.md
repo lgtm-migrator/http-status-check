@@ -19,20 +19,15 @@
 
 ## Overview
 
-http-status-check is a tool that monitors the http endpoints in a
-kubernetes cluster.
+`http-status-check` is a tool that monitors the status of HTTP GET endpoints.
 
-The tool can be used to monitor the HTTP endpoints of a service. It
-check if the service endpoints responds with an HTTP status 200 OK.
-Please note that this tool only supports an in-cluster deployment. The
-tool can be deployed in the following ways:
+The tool can be used to monitor the HTTP endpoints of a service in an Kubernetes
+cluster. It check if the service endpoints responds with an HTTP status 200 OK.
 
-* As a Kubernetes Job accessing services in the same cluster authorized using RBAC
+* As a Kubernetes Job accessing services in a Kubernetes cluster
+* As a standalone binary to check HTTP endpoints availability
 
 ## Getting Started
-
-> Please note that this tool doesn't monitor services from outside of
-> the cluster since endpoint IPs won't be reachable.
 
 ### Installation
 
@@ -61,13 +56,10 @@ Usage:
   http-status-check [flags]
 
 Flags:
-      --KUBECONFIG string   kubeconfig file. default: in-cluster configuration, Fallback $HOME/.kube/config
-      --config string       config file (default is $HOME/.http-status-check.yaml)
-  -h, --help                help for http-status-check
-  -p, --http-path string    HTTP Path to monitor (default "/")
-      --log-level string    logging level (debug, info...) (default "info")
-  -n, --namespace string    Namespace of the service to monitor (default "default")
-  -s, --service string      Name of the service to monitor (required)
+      --config string      config file (default is $HOME/.http-status-check.yaml)
+  -h, --help               help for http-status-check
+  -u, --http-url string    HTTP URL to monitor
+  -l, --log-level string   logging level (debug, info...) (default "info")
 ```
 
 ![command](cmd.png)
@@ -97,22 +89,20 @@ Usage:
   http-status-check [flags]
 
 Flags:
-      --KUBECONFIG string   kubeconfig file. default: in-cluster configuration, Fallback $HOME/.kube/config
-      --config string       config file (default is $HOME/.http-status-check.yaml)
-  -h, --help                help for http-status-check
-  -p, --http-path string    HTTP Path to monitor (default "/")
-      --log-level string    logging level (debug, info...) (default "info")
-  -n, --namespace string    Namespace of the service to monitor (default "default")
-  -s, --service string      Name of the service to monitor (required)
+      --config string      config file (default is $HOME/.http-status-check.yaml)
+  -h, --help               help for http-status-check
+  -u, --http-url string    HTTP URL to monitor
+  -l, --log-level string   logging level (debug, info...) (default "info")
 $ docker run -v .kube/:/root/.kube/ -it http-status-check:local-build \
-                                            --service=mypod
+                                            --http-url=http://sighup.io
 #
 ```
 
 ### Deploy in a cluster as a Job
 
 As a part of the health check toolkit of Fury Intelligence Platform, this tool
-is primary built to work as a Kubernetes Job or CronJob monitoring if TBD.
+is primary built to work as a Kubernetes Job or CronJob monitoring if an HTTP
+GET endpoint is up and responding with 200.
 In order to do so, our preferred way of deployment is by using a
 kustomization file that deploys the RBAC policy letting the job look into the
 services and enpoints in a namespace and the cron job itself.

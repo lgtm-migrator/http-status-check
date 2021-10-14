@@ -4,13 +4,26 @@
 #
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 namespace: bookinfo
+
+commonLabels:
+  app.kubernetes.io/created-by: healthcheck-controller
+  kfip.sighup.io/group: BookInfo
+  kfip.sighup.io/target: Details
+  kfip.sighup.io/check: http-status-check
+
 resources:
-  # Make sure the namespace and rbac is created before this
-  - role-binding.yaml
+  - https://raw.githubusercontent.com/istio/istio/release-1.10/samples/bookinfo/platform/kube/bookinfo.yaml
   - http-check-product.yaml
   - http-check-details.yaml
   - http-check-ratings.yaml
+
+images:
+  - name: registry.sighup.io/poc/http-status-check
+    newName: registry.sighup.io/poc/http-status-check
+    newTag: unstable
+
 configMapGenerator:
   - name: http-product-envs
     envs:

@@ -5,6 +5,8 @@
 # hadolint ignore=DL3007
 FROM quay.io/sighup/policeman:latest as linter
 
+ENV VALIDATE_KUBERNETES_KUBEVAL="false"
+
 RUN mkdir /app
 WORKDIR /app
 
