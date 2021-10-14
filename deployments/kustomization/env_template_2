@@ -1,1 +1,1 @@
-HSC_HTTP_URL=http://nginx-deploy.default.svc.cluster.local:8080/index.html
+HSC_HTTP_URL=http://nginx-deploy.default.svc.cluster.local/index.html

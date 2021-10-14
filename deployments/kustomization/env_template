@@ -1,2 +1,2 @@
-HSC_HTTP_URL=https://nginx.default.svc.cluster.local
+HSC_HTTP_URL=http://nginx.default.svc.cluster.local
 HSC_LOG_LEVEL=info
