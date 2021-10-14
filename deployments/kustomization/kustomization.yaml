@@ -18,7 +18,6 @@ images:
     newTag: unstable
 
 resources:
-  - role-binding.yaml
   - cronjob.yaml
 
 configMapGenerator:

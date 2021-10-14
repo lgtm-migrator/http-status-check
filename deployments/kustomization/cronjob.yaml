@@ -17,7 +17,6 @@ spec:
       activeDeadlineSeconds: 60 # job is marked failed after this limit
       template:
         spec:
-          serviceAccountName: http-status-check
           containers:
           - name: http-status-check
             image: registry.sighup.io/poc/http-status-check
