@@ -29,7 +29,6 @@ func ValidateHTTPEndpoint(ctx *context.Context, url string) error {
 
 func curlHTTPEndpoint(ctx *context.Context, url string) (int, error) {
 	req, err := http.NewRequest("GET", url, nil)
-	// req = req.WithContext(ctx)
 
 	if err != nil {
 		return 0, err

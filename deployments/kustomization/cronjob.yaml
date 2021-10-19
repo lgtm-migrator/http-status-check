@@ -20,7 +20,7 @@ spec:
           containers:
           - name: http-status-check
             image: registry.sighup.io/poc/http-status-check
-            imagePullPolicy: Always
+            imagePullPolicy: IfNotPresent
             env:
               - name: HSC_HTTP_URL
                 valueFrom:
