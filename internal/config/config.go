@@ -4,16 +4,11 @@
 
 package config
 
-import "github.com/sighupio/fip-commons/pkg/kube"
-
 // HscConfig hosts the configuration of the application.
 type HscConfig struct {
-	CfgFile     string
-	Namespace   string
-	HTTPPath    string
-	ServiceName string
-	LogLevel    string
-	KubeClient  kube.KubernetesClient
+	CfgFile  string
+	HTTPPath string
+	LogLevel string
 }
 
 // NewHscConfig creates an empty configuration struct.

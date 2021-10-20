@@ -5,6 +5,8 @@
 # hadolint ignore=DL3007
 FROM quay.io/sighup/policeman:latest as linter
 
+ENV VALIDATE_KUBERNETES_KUBEVAL="false"
+
 RUN mkdir /app
 WORKDIR /app
 
@@ -31,7 +33,6 @@ WORKDIR /app
 COPY go.mod go.mod
 COPY go.sum go.sum
 COPY cmd cmd
-COPY pkg pkg
 COPY internal internal
 
 RUN go test -v ./... -cover
@@ -44,13 +45,12 @@ WORKDIR /app
 COPY go.mod go.mod
 COPY go.sum go.sum
 COPY cmd cmd
-COPY pkg pkg
 COPY internal internal
 
 WORKDIR /app/cmd/http-status-check
 RUN go build
 
-FROM debian:buster as release
+FROM golang:1.16 as release
 
 COPY --from=builder /app/cmd/http-status-check/http-status-check /http-status-check
 ENTRYPOINT ["/http-status-check"]

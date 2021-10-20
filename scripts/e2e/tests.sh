@@ -206,3 +206,49 @@ info(){
 
     [ "$status" -eq 0 ]
 }
+
+@test "Prepare deploy 04" {
+    info
+    prep(){
+        cp deployments/kustomization/env_template_4 deployments/kustomization/.env
+    }
+    run prep
+    [ "$status" -eq 0 ]
+}
+
+@test "Deploy 04" {
+    info
+    deploy(){
+        kustomize build deployments/kustomization | kubectl apply -f -
+    }
+    run deploy
+    [ "$status" -eq 0 ]
+}
+
+@test "Use loaded image in the cronjob 04" {
+    info
+    mutate(){
+        kubectl set image cronjob/http-status-check http-status-check="${CONTAINER_IMAGE}"
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
+
+@test "Create a job from the cronjob 04" {
+    info
+    mutate(){
+        kubectl create job http-status-check-job-4 --from cronjob/http-status-check
+    }
+    run mutate
+    [ "$status" -eq 0 ]
+}
+
+@test "Check the job 04 did not complete successfully" {
+    info
+    deploy() {
+        kubectl wait --for=condition=complete --timeout=120s job/http-status-check-job-4
+    }
+    run deploy
+
+    [ "$status" -eq 0 ]
+}

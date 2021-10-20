@@ -5,9 +5,21 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
+commonLabels:
+  app.kubernetes.io/created-by: healthcheck-controller
+  kfip.sighup.io/group: SampleGroup
+  kfip.sighup.io/target: SampleTarget
+  kfip.sighup.io/check: http-status-check
+
+images:
+  - name: registry.sighup.io/poc/http-status-check
+    newName: registry.sighup.io/poc/http-status-check
+    newTag: unstable
+
 resources:
-  - role-binding.yaml
   - cronjob.yaml
+
 configMapGenerator:
   - name: hsc-envs
     envs:
