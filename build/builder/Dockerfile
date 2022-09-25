@@ -14,7 +14,7 @@ COPY . .
 
 RUN /entrypoint.sh
 
-FROM golang:1.16 as license
+FROM golang:1.19 as license
 
 RUN go get -u github.com/google/addlicense
 
@@ -25,7 +25,7 @@ COPY . .
 
 RUN addlicense -c "SIGHUP s.r.l" -v -l bsd --check .
 
-FROM golang:1.16 as tester
+FROM golang:1.19 as tester
 
 RUN mkdir /app
 WORKDIR /app
@@ -37,7 +37,7 @@ COPY internal internal
 
 RUN go test -v ./... -cover
 
-FROM golang:1.16 as builder
+FROM golang:1.19 as builder
 
 RUN mkdir /app
 WORKDIR /app
@@ -50,7 +50,7 @@ COPY internal internal
 WORKDIR /app/cmd/http-status-check
 RUN go build
 
-FROM golang:1.16 as release
+FROM golang:1.19 as release
 
 COPY --from=builder /app/cmd/http-status-check/http-status-check /http-status-check
 ENTRYPOINT ["/http-status-check"]
